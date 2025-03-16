@@ -56,9 +56,18 @@ func Connect(
 	if err != nil {
 		return nil, fmt.Errorf("Connect: failed to open database: %w", err)
 	}
+	return configureAndPingConnection(db, cfg)
+}
+
+// configureAndPingConnection configures the connection and pings the database.
+func configureAndPingConnection(
+	db types.DB, cfg ConnectConfig,
+) (types.DB, error) {
 	configureConnection(db, cfg)
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("Connect: failed to ping database: %w", err)
+		return nil, fmt.Errorf(
+			"configureAndPingConnection: failed to ping database: %w", err,
+		)
 	}
 	return db, nil
 }

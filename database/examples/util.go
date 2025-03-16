@@ -14,7 +14,7 @@ import (
 func Cfg() database.ConnectConfig {
 	return database.ConnectConfig{
 		Driver:          "sqlite3",
-		Database:        ":memory:", // In-memory SQLite DB.
+		Database:        "file::memory:?cache=shared", // In-memory SQLite DB.
 		ConnMaxLifetime: time.Minute,
 		ConnMaxIdleTime: 10 * time.Second,
 		MaxOpenConns:    10,

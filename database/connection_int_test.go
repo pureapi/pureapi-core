@@ -13,7 +13,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// ConnectionIntTestSuite is a suite of integration tests for database connection.
+// ConnectionIntTestSuite is a suite of integration tests for database
+// connection.
 type ConnectionIntTestSuite struct {
 	suite.Suite
 	db  types.DB
@@ -30,7 +31,12 @@ func (s *ConnectionIntTestSuite) SetupTest() {
 		MaxIdleConns:    5,
 	}
 	var err error
-	s.db, err = database.Connect(s.cfg, database.NewSQLDBAdapter, ":memory:")
+	// Ensure that in-memory databases are always shared.
+	s.db, err = database.Connect(
+		s.cfg,
+		database.NewSQLDBAdapter,
+		"file::memory:?cache=shared",
+	)
 	require.NoError(s.T(), err)
 	require.NotNil(s.T(), s.db)
 }

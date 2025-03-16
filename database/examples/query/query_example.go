@@ -9,6 +9,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// This example shows how to query a database using the Query function.
+// It uses the sqlDB DB implementation.
 func main() {
 	db, err := examples.Connect(examples.Cfg(), examples.DummyConnectionOpen)
 	if err != nil {

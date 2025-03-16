@@ -15,7 +15,7 @@ import (
 )
 
 // TransactionIntTestSuite is a test suite for transaction-related integration
-// tests. It uses an in-memory SQLite database.
+// tests.
 type TransactionIntTestSuite struct {
 	suite.Suite
 	db types.DB
@@ -29,7 +29,7 @@ func TestTransactionIntTestSuite(t *testing.T) {
 
 // SetupTest initializes an in-memory SQLite database.
 func (s *TransactionIntTestSuite) SetupTest() {
-	db, err := database.NewSQLDBAdapter("sqlite3", ":memory:")
+	db, err := database.NewSQLDBAdapter("sqlite3", "file::memory:?cache=shared")
 	require.NoError(s.T(), err)
 	s.db = db
 

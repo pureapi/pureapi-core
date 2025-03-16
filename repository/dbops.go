@@ -207,13 +207,22 @@ func QuerySingleEntity[Entity databasetypes.Getter](
 	factoryFn func() Entity,
 ) (Entity, error) {
 	var zero Entity
+	if preparer == nil {
+		return zero, fmt.Errorf("QuerySingleEntity: preparer is nil")
+	}
 	stmt, err := preparer.Prepare(query)
 	if err != nil {
 		return zero, err
 	}
 	defer stmt.Close()
 	entity, err := RowToEntity(ctx, stmt.QueryRow(parameters...), factoryFn)
-	return entity, errorChecker.Check(err)
+	if err != nil {
+		if errorChecker == nil {
+			return zero, err
+		}
+		return zero, errorChecker.Check(err)
+	}
+	return entity, nil
 }
 
 // QueryEntities executes a query and scans all entities of type T,
@@ -359,7 +368,10 @@ func RowsToEntities[T databasetypes.Getter](
 
 // doExec executes a query with parameters.
 func doExec(
-	_ context.Context, preparer databasetypes.Preparer, query string, parameters []any,
+	_ context.Context,
+	preparer databasetypes.Preparer,
+	query string,
+	parameters []any,
 ) (databasetypes.Result, error) {
 	stmt, err := preparer.Prepare(query)
 	if err != nil {
@@ -386,7 +398,10 @@ func doExecRaw(
 
 // doQuery executes a query with parameters.
 func doQuery(
-	_ context.Context, preparer databasetypes.Preparer, query string, parameters []any,
+	_ context.Context,
+	preparer databasetypes.Preparer,
+	query string,
+	parameters []any,
 ) (databasetypes.Rows, databasetypes.Stmt, error) {
 	stmt, err := preparer.Prepare(query)
 	if err != nil {

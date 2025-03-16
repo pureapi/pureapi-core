@@ -14,7 +14,9 @@ func RunDatabase() {
 		Database: "example.db",
 	}
 
-	db, err := database.Connect(cfg, database.NewSQLDBAdapter, ":memory:")
+	db, err := database.Connect(
+		cfg, database.NewSQLDBAdapter, "file::memory:?cache=shared",
+	)
 	if err != nil {
 		panic(err)
 	}

@@ -13,6 +13,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// This example shows how to execute a transaction using the Transaction
+// function. It demonstrates multiple operations within a transaction and
+// handles errors gracefully.
 func main() {
 	db, err := examples.Connect(examples.Cfg(), examples.DummyConnectionOpen)
 	if err != nil {

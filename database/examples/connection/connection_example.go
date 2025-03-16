@@ -12,14 +12,16 @@ import (
 )
 
 // dummyConnectionOpen adapts NewSQLDBAdapter to be used with Connect.
+// It uses the sqlDB DB implementation provided by NewSQLDBAdapter.
 func dummyConnectionOpen(driver, dsn string) (types.DB, error) {
 	return database.NewSQLDBAdapter(driver, dsn)
 }
 
+// This example shows how to connect to a database using the Connect function.
 func main() {
 	cfg := database.ConnectConfig{
 		Driver:          "sqlite3",
-		Database:        ":memory:", // In-memory SQLite DB.
+		Database:        "file::memory:?cache=shared", // In-memory SQLite DB.
 		ConnMaxLifetime: time.Minute,
 		ConnMaxIdleTime: 10 * time.Second,
 		MaxOpenConns:    10,
