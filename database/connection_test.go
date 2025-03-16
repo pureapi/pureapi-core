@@ -63,6 +63,9 @@ func (f *FakeDB) Exec(query string, args ...any) (types.Result, error) {
 func (f *FakeDB) Query(query string, args ...any) (types.Rows, error) {
 	panic("not implemented")
 }
+func (f *FakeDB) QueryRow(query string, args ...any) types.Row {
+	panic("not implemented")
+}
 func (f *FakeDB) Close() error {
 	return nil
 }

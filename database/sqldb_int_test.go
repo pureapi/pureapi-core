@@ -16,13 +16,13 @@ import (
 
 // openInMemoryDB is a helper that opens an in-memory sqlite3 database.
 func openInMemoryDB(t *testing.T) types.DB {
-	db, err := database.NewSQLDBAdapter("sqlite3", ":memory:")
+	// Ensure that in-memory databases are always shared.
+	db, err := database.NewSQLDBAdapter("sqlite3", "file::memory:?cache=shared")
 	require.NoError(t, err)
 	return db
 }
 
 // SQLDBIntTestSuite is a suite of tests for SQLDB-related integration tests.
-// It uses an in-memory SQLite database.
 type SQLDBIntTestSuite struct {
 	suite.Suite
 	db types.DB
@@ -52,10 +52,9 @@ func TestSQLDB_Ping(t *testing.T) {
 	require.NoError(t, err)
 }
 
-// TestSQLDB_Exec_Query tests Exec and Query methods by creating a table,
-// inserting a record, and then querying the inserted data.
-func (s *SQLDBIntTestSuite) Test_Exec_Query() {
-
+// TestSQLDB_Exec_Query tests Exec, Query, and QueryRow methods by creating a
+// table, inserting a record, and then querying the inserted data.
+func (s *SQLDBIntTestSuite) Test_Exec_Query_QueryRow() {
 	createTable := `
 		CREATE TABLE IF NOT EXISTS test (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -93,6 +92,12 @@ func (s *SQLDBIntTestSuite) Test_Exec_Query() {
 		s.T().Fatal("expected one row")
 	}
 	require.NoError(s.T(), rows.Err())
+
+	row := s.db.QueryRow(query, lastID)
+	err = row.Scan(&id, &name)
+	require.NoError(s.T(), err)
+	assert.Equal(s.T(), lastID, int64(id))
+	assert.Equal(s.T(), "Alice", name)
 }
 
 // TestSQLDB_Prepare verifies that prepared statements work as expected.

@@ -95,17 +95,17 @@ func (s *SQLDBTestSuite) Test_Exec() {
 	require.NoError(s.T(), mock.ExpectationsWereMet())
 }
 
-// Test_Query verifies that Query works.
-func (s *SQLDBTestSuite) Test_Query() {
+// Test_Query verifies that Query and QueryRow work.
+func (s *SQLDBTestSuite) Test_QueryAndQueryRow() {
 	// Test the Query method of SQLDB.
 	db, mock, err := sqlmock.New()
 	require.NoError(s.T(), err)
 	defer db.Close()
 	sqlDB := &sqlDB{DB: db}
 
+	// Test Query.
 	query := "SELECT id, name FROM test WHERE id = ?"
-	rows := sqlmock.NewRows([]string{"id", "name"}).
-		AddRow(123, "Alice")
+	rows := sqlmock.NewRows([]string{"id", "name"}).AddRow(123, "Alice")
 	mock.ExpectQuery(query).WithArgs(123).WillReturnRows(rows)
 
 	resultRows, err := sqlDB.Query(query, 123)
@@ -119,6 +119,20 @@ func (s *SQLDBTestSuite) Test_Query() {
 	require.NoError(s.T(), err)
 	assert.Equal(s.T(), 123, id)
 	assert.Equal(s.T(), "Alice", name)
+	require.NoError(s.T(), mock.ExpectationsWereMet())
+
+	// Test QueryRow.
+	mock.ExpectQuery(query).WithArgs(123).WillReturnRows(
+		sqlmock.NewRows([]string{"id", "name"}).AddRow(123, "Alice"),
+	)
+
+	row := sqlDB.QueryRow(query, 123)
+	err = row.Scan(&id, &name)
+	require.NoError(s.T(), err)
+	assert.Equal(s.T(), 123, id)
+	assert.Equal(s.T(), "Alice", name)
+
+	// Ensure all expectations were met
 	require.NoError(s.T(), mock.ExpectationsWereMet())
 }
 

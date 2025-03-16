@@ -17,6 +17,7 @@ type DB interface {
 	BeginTx(ctx context.Context, opts *sql.TxOptions) (Tx, error)
 	Exec(query string, args ...any) (Result, error)
 	Query(query string, args ...any) (Rows, error)
+	QueryRow(query string, args ...any) Row
 	Close() error
 }
 

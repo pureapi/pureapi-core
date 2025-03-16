@@ -7,6 +7,8 @@ import (
 	"github.com/pureapi/pureapi-core/database/examples"
 )
 
+// This example shows how to use a prepared statement using the Prepare
+// function. It uses the sqlDB DB implementation.
 func main() {
 	db, err := examples.Connect(examples.Cfg(), examples.DummyConnectionOpen)
 	if err != nil {

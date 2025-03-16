@@ -48,6 +48,9 @@ func NewSQLDB(driver string, dsn string) (*sqlDB, error) {
 //   - error: An error if the connection fails.
 func NewSQLDBAdapter(driver string, dsn string) (types.DB, error) {
 	db, err := NewSQLDB(driver, dsn)
+	if err != nil {
+		return nil, fmt.Errorf("NewSQLDBAdapter error: %w", err)
+	}
 	return db, err
 }
 
@@ -158,6 +161,18 @@ func (db *sqlDB) Query(query string, args ...any) (types.Rows, error) {
 		return nil, fmt.Errorf("DB.Query error: %w", err)
 	}
 	return &RealRows{Rows: rows}, nil
+}
+
+// QueryRow executes a query that returns a single row.
+//
+// Parameters:
+//   - query: The SQL query string to execute.
+//   - args: The query parameters.
+//
+// Returns:
+//   - Row: The row of the query.
+func (db *sqlDB) QueryRow(query string, args ...any) types.Row {
+	return db.DB.QueryRow(query, args...)
 }
 
 // RealStmt wraps *sql.Stmt to implement the Stmt interface.
