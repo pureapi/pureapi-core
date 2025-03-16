@@ -44,7 +44,6 @@ func NewEventEmitter(opts ...eventEmitterOption) *defaultEventEmitter {
 		}
 		opt(eventEmitter)
 	}
-	fmt.Println("eventEmitter created ", eventEmitter.timeout)
 	return eventEmitter
 }
 

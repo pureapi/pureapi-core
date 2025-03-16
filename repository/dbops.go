@@ -212,7 +212,10 @@ func QuerySingleEntity[Entity databasetypes.Getter](
 	}
 	stmt, err := preparer.Prepare(query)
 	if err != nil {
-		return zero, err
+		if errorChecker == nil {
+			return zero, err
+		}
+		return zero, errorChecker.Check(err)
 	}
 	defer stmt.Close()
 	entity, err := RowToEntity(ctx, stmt.QueryRow(parameters...), factoryFn)

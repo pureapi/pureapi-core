@@ -33,7 +33,7 @@ CREATE TABLE products (
 	if err != nil {
 		log.Printf("Create table error: %v", err)
 	}
-	fmt.Println("Table 'products' created.")
+	log.Println("Table 'products' created.")
 
 	// Execute a successful transaction.
 	SuccessfulTransaction(db, "Gadget", 100)
