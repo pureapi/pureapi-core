@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/pureapi/pureapi-core/database"
 	"github.com/pureapi/pureapi-core/database/types"
@@ -47,5 +47,5 @@ func RunDatabase() {
 		panic(err)
 	}
 
-	fmt.Println("Inserted user with ID:", result)
+	log.Println("Inserted user with ID:", result)
 }

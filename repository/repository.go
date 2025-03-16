@@ -10,16 +10,16 @@ import (
 	repositorytypes "github.com/pureapi/pureapi-core/repository/types"
 )
 
-// defaultReaderRepo implements read operations.
-type defaultReaderRepo[Entity databasetypes.Getter] struct {
-	queryBuilder repositorytypes.QueryBuilder
+// readerRepo implements read operations.
+type readerRepo[Entity databasetypes.Getter] struct {
+	queryBuilder repositorytypes.DataReaderQuery
 	errorChecker repositorytypes.ErrorChecker
 }
 
 // DefaultReaderRepo implements ReaderRepo.
-var _ repositorytypes.ReaderRepo[databasetypes.Getter] = (*defaultReaderRepo[databasetypes.Getter])(nil)
+var _ repositorytypes.ReaderRepo[databasetypes.Getter] = (*readerRepo[databasetypes.Getter])(nil)
 
-// NewDefaultReaderRepo creates a new defaultReaderRepo.
+// NewReaderRepo creates a new readerRepo.
 //
 // Parameters:
 //   - ctx: Context to use.
@@ -27,11 +27,12 @@ var _ repositorytypes.ReaderRepo[databasetypes.Getter] = (*defaultReaderRepo[dat
 //   - errorChecker: The ErrorChecker to use for checking errors.
 //
 // Returns:
-//   - *defaultReaderRepo: A new defaultReaderRepo.
-func NewDefaultReaderRepo[Entity databasetypes.Getter](
-	queryBuilder repositorytypes.QueryBuilder, errorChecker repositorytypes.ErrorChecker,
-) *defaultReaderRepo[Entity] {
-	return &defaultReaderRepo[Entity]{
+//   - *readerRepo: A new readerRepo.
+func NewReaderRepo[Entity databasetypes.Getter](
+	queryBuilder repositorytypes.DataReaderQuery,
+	errorChecker repositorytypes.ErrorChecker,
+) *readerRepo[Entity] {
+	return &readerRepo[Entity]{
 		queryBuilder: queryBuilder,
 		errorChecker: errorChecker,
 	}
@@ -48,7 +49,7 @@ func NewDefaultReaderRepo[Entity databasetypes.Getter](
 // Returns:
 //   - T: The entity scanned from the query.
 //   - error: An error if the query fails.
-func (r *defaultReaderRepo[Entity]) GetOne(
+func (r *readerRepo[Entity]) GetOne(
 	ctx context.Context,
 	preparer databasetypes.Preparer,
 	factoryFn repositorytypes.GetterFactoryFn[Entity],
@@ -72,7 +73,7 @@ func (r *defaultReaderRepo[Entity]) GetOne(
 // Returns:
 //   - []T: A slice of entities scanned from the query.
 //   - error: An error if the query fails.
-func (r *defaultReaderRepo[Entity]) GetMany(
+func (r *readerRepo[Entity]) GetMany(
 	ctx context.Context,
 	preparer databasetypes.Preparer,
 	factoryFn repositorytypes.GetterFactoryFn[Entity],
@@ -97,7 +98,7 @@ func (r *defaultReaderRepo[Entity]) GetMany(
 // Returns:
 //   - int: The count of matching records.
 //   - error: An error if the query fails.
-func (r *defaultReaderRepo[Entity]) Count(
+func (r *readerRepo[Entity]) Count(
 	ctx context.Context,
 	preparer databasetypes.Preparer,
 	selectors dbquery.Selectors,
@@ -137,7 +138,7 @@ func (r *defaultReaderRepo[Entity]) Count(
 // Returns:
 //   - []T: A slice of entities scanned from the query.
 //   - error: An error if the query fails.
-func (r *defaultReaderRepo[Entity]) Query(
+func (r *readerRepo[Entity]) Query(
 	ctx context.Context,
 	preparer databasetypes.Preparer,
 	query string,
@@ -149,16 +150,16 @@ func (r *defaultReaderRepo[Entity]) Query(
 	)
 }
 
-// defaultMutatorRepo implements mutation operations.
-type defaultMutatorRepo[Entity databasetypes.Mutator] struct {
-	queryBuilder repositorytypes.QueryBuilder
+// mutatorRepo implements mutation operations.
+type mutatorRepo[Entity databasetypes.Mutator] struct {
+	queryBuilder repositorytypes.DataMutatorQuery
 	errorChecker repositorytypes.ErrorChecker
 }
 
 // DefaultMutatorRepo implements MutatorRepo.
-var _ repositorytypes.MutatorRepo[databasetypes.Mutator] = (*defaultMutatorRepo[databasetypes.Mutator])(nil)
+var _ repositorytypes.MutatorRepo[databasetypes.Mutator] = (*mutatorRepo[databasetypes.Mutator])(nil)
 
-// NewDefaultMutatorRepo creates a new defaultMutatorRepo.
+// NewMutatorRepo creates a new mutatorRepo.
 //
 // Parameters:
 //   - ctx: Context to use.
@@ -166,12 +167,12 @@ var _ repositorytypes.MutatorRepo[databasetypes.Mutator] = (*defaultMutatorRepo[
 //   - errorChecker: The error checker to use for the repository.
 //
 // Returns:
-//   - *defaultMutatorRepo: A new defaultMutatorRepo.
-func NewDefaultMutatorRepo[Entity databasetypes.Mutator](
-	queryBuilder repositorytypes.QueryBuilder,
+//   - *mutatorRepo: A new mutatorRepo.
+func NewMutatorRepo[Entity databasetypes.Mutator](
+	queryBuilder repositorytypes.DataMutatorQuery,
 	errorChecker repositorytypes.ErrorChecker,
-) *defaultMutatorRepo[Entity] {
-	return &defaultMutatorRepo[Entity]{
+) *mutatorRepo[Entity] {
+	return &mutatorRepo[Entity]{
 		queryBuilder: queryBuilder,
 		errorChecker: errorChecker,
 	}
@@ -187,7 +188,7 @@ func NewDefaultMutatorRepo[Entity databasetypes.Mutator](
 // Returns:
 //   - T: The inserted entity.
 //   - error: An error if the query fails.
-func (r *defaultMutatorRepo[Entity]) Insert(
+func (r *mutatorRepo[Entity]) Insert(
 	ctx context.Context, preparer databasetypes.Preparer, mutator Entity,
 ) (Entity, error) {
 	query, params := r.queryBuilder.Insert(
@@ -216,7 +217,7 @@ func (r *defaultMutatorRepo[Entity]) Insert(
 // Returns:
 //   - int64: The number of rows affected by the update.
 //   - error: An error if the query fails.
-func (r *defaultMutatorRepo[Entity]) Update(
+func (r *mutatorRepo[Entity]) Update(
 	ctx context.Context,
 	preparer databasetypes.Preparer,
 	updater Entity,
@@ -252,7 +253,7 @@ func (r *defaultMutatorRepo[Entity]) Update(
 // Returns:
 //   - int64: The number of rows affected by the delete.
 //   - error: An error if the query fails.
-func (r *defaultMutatorRepo[Entity]) Delete(
+func (r *mutatorRepo[Entity]) Delete(
 	ctx context.Context,
 	preparer databasetypes.Preparer,
 	deleter Entity,
@@ -276,23 +277,25 @@ func (r *defaultMutatorRepo[Entity]) Delete(
 	return rowsAffected, nil
 }
 
-// defaultCustomRepo implements the CustomRepo interface.
-type defaultCustomRepo[T any] struct {
+// customRepo implements the CustomRepo interface.
+type customRepo[T any] struct {
 	errorChecker repositorytypes.ErrorChecker
 }
 
-// defaultCustomRepo implements the CustomRepo interface.
-var _ repositorytypes.CustomRepo[any] = (*defaultCustomRepo[any])(nil)
+// customRepo implements the CustomRepo interface.
+var _ repositorytypes.CustomRepo[any] = (*customRepo[any])(nil)
 
-// NewDefaultCustomRepo creates a new defaultCustomRepo.
+// NewCustomRepo creates a new customRepo.
 // It requires an optional ErrorChecker to translate database-specific errors.
-func NewDefaultCustomRepo[T any](errorChecker repositorytypes.ErrorChecker) repositorytypes.CustomRepo[T] {
-	return &defaultCustomRepo[T]{errorChecker: errorChecker}
+func NewCustomRepo[T any](
+	errorChecker repositorytypes.ErrorChecker,
+) repositorytypes.CustomRepo[T] {
+	return &customRepo[T]{errorChecker: errorChecker}
 }
 
-// QueryCustom executes a custom SQL query and maps the results into a slice of custom entities.
-// It leverages the existing Query function and RowsToAny helper from the repository package.
-func (r *defaultCustomRepo[T]) QueryCustom(
+// QueryCustom executes a custom SQL query and maps the results into a slice of
+// custom entities.
+func (r *customRepo[T]) QueryCustom(
 	ctx context.Context,
 	preparer databasetypes.Preparer,
 	query string,
@@ -311,22 +314,22 @@ func (r *defaultCustomRepo[T]) QueryCustom(
 	return RowsToAny(ctx, rows, factoryFn)
 }
 
-// defaultRawQueryer provides direct query execution.
-type defaultRawQueryer struct{}
+// rawQueryer provides direct query execution.
+type rawQueryer struct{}
 
 // DefaultRawQueryer implements RawQueryer.
-var _ repositorytypes.RawQueryer = (*defaultRawQueryer)(nil)
+var _ repositorytypes.RawQueryer = (*rawQueryer)(nil)
 
-// NewDefaultRawQueryer creates a new defaultRawQueryer.
+// NewRawQueryer creates a new rawQueryer.
 //
 // Returns:
-//   - *defaultRawQueryer: A new defaultRawQueryer.
-func NewDefaultRawQueryer() *defaultRawQueryer {
-	return &defaultRawQueryer{}
+//   - *rawQueryer: A new rawQueryer.
+func NewRawQueryer() *rawQueryer {
+	return &rawQueryer{}
 }
 
-// defaultRawQueryer implements RawQueryer.
-var _ repositorytypes.RawQueryer = (*defaultRawQueryer)(nil)
+// rawQueryer implements RawQueryer.
+var _ repositorytypes.RawQueryer = (*rawQueryer)(nil)
 
 // Exec executes a query using a prepared statement.
 //
@@ -339,7 +342,7 @@ var _ repositorytypes.RawQueryer = (*defaultRawQueryer)(nil)
 // Returns:
 //   - Result: The Result of the query.
 //   - error: An error if the query fails.
-func (rq *defaultRawQueryer) Exec(
+func (rq *rawQueryer) Exec(
 	ctx context.Context,
 	preparer databasetypes.Preparer,
 	query string,
@@ -359,7 +362,7 @@ func (rq *defaultRawQueryer) Exec(
 // Returns:
 //   - Result: The Result of the query.
 //   - error: An error if the query fails.
-func (rq *defaultRawQueryer) ExecRaw(
+func (rq *rawQueryer) ExecRaw(
 	ctx context.Context, db databasetypes.DB, query string, parameters []any,
 ) (databasetypes.Result, error) {
 	return ExecRaw(ctx, db, query, parameters, nil)
@@ -377,7 +380,7 @@ func (rq *defaultRawQueryer) ExecRaw(
 // Returns:
 //   - Rows: The rows of the query.
 //   - error: An error if the query fails.
-func (rq *defaultRawQueryer) Query(
+func (rq *rawQueryer) Query(
 	ctx context.Context,
 	preparer databasetypes.Preparer,
 	query string,
@@ -404,24 +407,24 @@ func (rq *defaultRawQueryer) Query(
 //   - error: An error if the query fails.
 //
 //nolint:ireturn
-func (rq *defaultRawQueryer) QueryRaw(
+func (rq *rawQueryer) QueryRaw(
 	ctx context.Context, db databasetypes.DB, query string, parameters []any,
 ) (databasetypes.Rows, error) {
 	return QueryRaw(ctx, db, query, parameters, nil)
 }
 
-// defaultTxManager is the default transaction manager.
-type defaultTxManager[Entity any] struct{}
+// txManager is the default transaction manager.
+type txManager[Entity any] struct{}
 
 // DefaultTxManager implements TxManager.
-var _ repositorytypes.TxManager[any] = (*defaultTxManager[any])(nil)
+var _ repositorytypes.TxManager[any] = (*txManager[any])(nil)
 
-// NewDefaultTxManager returns a new defaultTxManager.
+// NewTxManager returns a new txManager.
 //
 // Returns:
-//   - *defaultTxManager[Entity]: The new defaultTxManager.
-func NewDefaultTxManager[Entity any]() *defaultTxManager[Entity] {
-	return &defaultTxManager[Entity]{}
+//   - *txManager[Entity]: The new txManager.
+func NewTxManager[Entity any]() *txManager[Entity] {
+	return &txManager[Entity]{}
 }
 
 // WithTransaction wraps a function call in a DB transaction.
@@ -435,7 +438,7 @@ func NewDefaultTxManager[Entity any]() *defaultTxManager[Entity] {
 // Returns:
 //   - Entity: The result of the callback.
 //   - error: An error if the transaction fails.
-func (t *defaultTxManager[Entity]) WithTransaction(
+func (t *txManager[Entity]) WithTransaction(
 	ctx context.Context,
 	connFn repositorytypes.ConnFn,
 	callback databasetypes.TxFn[Entity],
