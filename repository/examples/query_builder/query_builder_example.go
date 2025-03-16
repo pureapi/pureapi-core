@@ -25,7 +25,9 @@ func main() {
 	CreateTable(db)
 }
 
-// CreateTable creates the "users" table using a custom SchemaManager.
+// CreateTable creates the "users" table using the custom SchemaManager
+// implementation. This demonstrates that you can use a custom query builder
+// implementation and run custom SQL queries without the need for a repository.
 //
 // Parameters:
 //   - db: The database handle.
