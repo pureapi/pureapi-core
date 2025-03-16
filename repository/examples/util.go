@@ -1,4 +1,4 @@
-package types
+package examples
 
 import (
 	"fmt"
@@ -87,7 +87,6 @@ func (eu *ErrorUser) InsertedValues() ([]string, []any) {
 type SimpleQueryBuilder struct{}
 
 // Get builds a simple SELECT query for the given table.
-// The query is not parameterized and should only be used for testing.
 //
 // Parameters:
 //   - table: The table to query.
