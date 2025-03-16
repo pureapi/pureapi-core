@@ -169,6 +169,9 @@ func QuerySingleValue[T any](
 	}
 	stmt, err := preparer.Prepare(query)
 	if err != nil {
+		if errorChecker == nil {
+			return zero, err
+		}
 		return zero, err
 	}
 	defer stmt.Close()
@@ -252,7 +255,10 @@ func QueryEntities[Entity databasetypes.Getter](
 ) ([]Entity, error) {
 	rows, stmt, err := Query(ctx, preparer, query, parameters, errorChecker)
 	if err != nil {
-		return nil, err
+		if errorChecker == nil {
+			return nil, err
+		}
+		return nil, errorChecker.Check(err)
 	}
 	defer stmt.Close()
 	defer rows.Close()
@@ -270,9 +276,7 @@ func QueryEntities[Entity databasetypes.Getter](
 //   - T: The entity scanned from the row.
 //   - error: An error if the scan fails.
 func RowToEntity[T databasetypes.Getter](
-	_ context.Context,
-	row databasetypes.Row,
-	factoryFn func() T,
+	_ context.Context, row databasetypes.Row, factoryFn func() T,
 ) (T, error) {
 	var zero T
 	entity := factoryFn()
