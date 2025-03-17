@@ -3,7 +3,7 @@ package endpoint
 import (
 	"net/http"
 
-	"github.com/pureapi/pureapi-core/middleware/types"
+	"github.com/pureapi/pureapi-core/endpoint/types"
 )
 
 // defaultMiddlewares is a slice of Middleware functions.
