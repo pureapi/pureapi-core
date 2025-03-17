@@ -22,10 +22,10 @@ func (s *APIErrorTestSuite) Test_NewAPIError() {
 	id := "ERROR_001"
 	errObj := NewAPIError(id)
 	s.Require().NotNil(errObj)
-	s.Equal(id, errObj.id)
-	s.Nil(errObj.data)
-	s.Empty(errObj.message)
-	s.Equal("-", errObj.origin)
+	s.Equal(id, errObj.ErrID)
+	s.Nil(errObj.ErrData)
+	s.Empty(errObj.ErrMessage)
+	s.Equal("-", errObj.ErrOrigin)
 }
 
 // Test_WithData verifies that WithData returns a new APIError with the data
@@ -47,10 +47,10 @@ func (s *APIErrorTestSuite) Test_WithData() {
 		s.Run(tc.name, func() {
 			newErr := base.WithData(tc.data)
 			s.NotSame(base, newErr, "WithData should return a new instance")
-			s.Equal(base.id, newErr.id)
-			s.Equal(base.message, newErr.message)
-			s.Equal(base.origin, newErr.origin)
-			s.Equal(tc.expected, newErr.data)
+			s.Equal(base.ErrID, newErr.ErrID)
+			s.Equal(base.ErrMessage, newErr.ErrMessage)
+			s.Equal(base.ErrOrigin, newErr.ErrOrigin)
+			s.Equal(tc.expected, newErr.ErrData)
 		})
 	}
 }
@@ -72,11 +72,11 @@ func (s *APIErrorTestSuite) Test_WithMessage() {
 		s.Run(tc.name, func() {
 			newErr := base.WithMessage(tc.message)
 			s.NotSame(base, newErr, "WithMessage should return a new instance")
-			s.Equal(base.id, newErr.id)
-			s.Equal(base.data, newErr.data)
-			s.Equal(base.origin, newErr.origin)
-			s.NotNil(newErr.message)
-			s.Equal(tc.expected, newErr.message)
+			s.Equal(base.ErrID, newErr.ErrID)
+			s.Equal(base.ErrData, newErr.ErrData)
+			s.Equal(base.ErrOrigin, newErr.ErrOrigin)
+			s.NotNil(newErr.ErrMessage)
+			s.Equal(tc.expected, newErr.ErrMessage)
 		})
 	}
 }
@@ -99,8 +99,8 @@ func (s *APIErrorTestSuite) Test_WithOrigin() {
 		s.Run(tc.name, func() {
 			newErr := base.WithOrigin(tc.origin)
 			s.NotSame(base, newErr, "WithOrigin should return a new instance")
-			s.Equal(base.id, newErr.ID())
-			s.Equal(base.data, newErr.Data())
+			s.Equal(base.ErrID, newErr.ID())
+			s.Equal(base.ErrData, newErr.Data())
 			s.Equal(tc.expected, newErr.Origin())
 		})
 	}

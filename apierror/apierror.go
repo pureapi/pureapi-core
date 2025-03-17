@@ -9,10 +9,10 @@ import (
 
 // DefaultAPIError represents a JSON marshalable custom error type.
 type DefaultAPIError struct {
-	id      string
-	data    any
-	message string
-	origin  string
+	ErrID      string `json:"id"`
+	ErrData    any    `json:"data,omitempty"`
+	ErrMessage string `json:"message,omitempty"`
+	ErrOrigin  string `json:"origin,omitempty"`
 }
 
 var _ types.APIError = (*DefaultAPIError)(nil)
@@ -27,12 +27,31 @@ var _ types.APIError = (*DefaultAPIError)(nil)
 //   - *defaultAPIError: A new defaultAPIError instance.
 func NewAPIError(id string) *DefaultAPIError {
 	return &DefaultAPIError{
-		id:      id,
-		data:    nil,
-		message: "",
-		origin:  "-", // Set to prevent empty origin.
+		ErrID:      id,
+		ErrData:    nil,
+		ErrMessage: "",
+		ErrOrigin:  "-", // Set to prevent empty origin.
 	}
 }
+
+// From converts an APIError to a DefaultAPIError.
+//
+// Parameters:
+//   - err: The APIError to convert.
+//
+// Returns:
+//   - *defaultAPIError: A new defaultAPIError instance.
+func From(err types.APIError) *DefaultAPIError {
+	return &DefaultAPIError{
+		ErrID:      err.ID(),
+		ErrData:    err.Data(),
+		ErrMessage: err.Message(),
+		ErrOrigin:  err.Origin(),
+	}
+}
+
+// Alias type to avoid infinite recursion in JSON marshaling.
+type defaultAPIErrorAlias DefaultAPIError
 
 // MarshalJSON implements custom JSON marshaling.
 //
@@ -40,18 +59,8 @@ func NewAPIError(id string) *DefaultAPIError {
 //   - []byte: The JSON representation of the error.
 //   - error: An error if the marshaling fails.
 func (e *DefaultAPIError) MarshalJSON() ([]byte, error) {
-	// Create an anonymous struct with JSON tags.
-	return json.Marshal(struct {
-		ID      string `json:"id"`
-		Data    any    `json:"data,omitempty"`
-		Message string `json:"message,omitempty"`
-		Origin  string `json:"origin,omitempty"`
-	}{
-		ID:      e.id,
-		Data:    e.data,
-		Message: e.message,
-		Origin:  e.origin,
-	})
+	alias := defaultAPIErrorAlias(*e)
+	return json.Marshal(alias)
 }
 
 // UnmarshalJSON implements custom JSON unmarshaling.
@@ -62,20 +71,25 @@ func (e *DefaultAPIError) MarshalJSON() ([]byte, error) {
 // Returns:
 //   - error: An error if the unmarshaling fails.
 func (e *DefaultAPIError) UnmarshalJSON(data []byte) error {
-	aux := struct {
-		ID      string `json:"id"`
-		Data    any    `json:"data,omitempty"`
-		Message string `json:"message,omitempty"`
-		Origin  string `json:"origin,omitempty"`
-	}{}
-	if err := json.Unmarshal(data, &aux); err != nil {
+	var alias defaultAPIErrorAlias
+	if err := json.Unmarshal(data, &alias); err != nil {
 		return err
 	}
-	e.id = aux.ID
-	e.data = aux.Data
-	e.message = aux.Message
-	e.origin = aux.Origin
+	*e = DefaultAPIError(alias)
 	return nil
+}
+
+// WithID returns a new error with the given ID.
+//
+// Parameters:
+//   - id: The ID to include in the error.
+//
+// Returns:
+//   - *defaultAPIError: A new defaultAPIError.
+func (e *DefaultAPIError) WithID(id string) *DefaultAPIError {
+	new := *e
+	new.ErrID = id
+	return &new
 }
 
 // WithData returns a new error with the given data.
@@ -87,7 +101,7 @@ func (e *DefaultAPIError) UnmarshalJSON(data []byte) error {
 //   - *defaultAPIError: A new defaultAPIError.
 func (e *DefaultAPIError) WithData(data any) *DefaultAPIError {
 	new := *e
-	new.data = data
+	new.ErrData = data
 	return &new
 }
 
@@ -100,20 +114,20 @@ func (e *DefaultAPIError) WithData(data any) *DefaultAPIError {
 //   - *defaultAPIError: A new defaultAPIError.
 func (e *DefaultAPIError) WithMessage(message string) *DefaultAPIError {
 	new := *e
-	new.message = message
+	new.ErrMessage = message
 	return &new
 }
 
-// WithOrigin returns a new error with the given origin.
+// WithMessage returns a new error with the given origin.
 //
 // Parameters:
-//   - origin: The origin to include in the error.
+//   - message: The message to include in the error.
 //
 // Returns:
-//   - types.APIError: A new APIError.
-func (e *DefaultAPIError) WithOrigin(origin string) types.APIError {
+//   - *defaultAPIError: A new defaultAPIError.
+func (e *DefaultAPIError) WithOrigin(origin string) *DefaultAPIError {
 	new := *e
-	new.origin = origin
+	new.ErrOrigin = origin
 	return &new
 }
 
@@ -123,10 +137,10 @@ func (e *DefaultAPIError) WithOrigin(origin string) types.APIError {
 // Returns:
 //   - string: The full error message as a string.
 func (e *DefaultAPIError) Error() string {
-	if e.message != "" {
-		return fmt.Sprintf("%s: %s", e.id, e.message)
+	if e.ErrMessage != "" {
+		return fmt.Sprintf("%s: %s", e.ErrID, e.ErrMessage)
 	}
-	return e.id
+	return e.ErrID
 }
 
 // ID returns the ID of the error.
@@ -134,7 +148,7 @@ func (e *DefaultAPIError) Error() string {
 // Returns:
 //   - string: The ID of the error.
 func (e *DefaultAPIError) ID() string {
-	return e.id
+	return e.ErrID
 }
 
 // Data returns the data associated with the error.
@@ -142,7 +156,7 @@ func (e *DefaultAPIError) ID() string {
 // Returns:
 //   - any: The data associated with the error.
 func (e *DefaultAPIError) Data() any {
-	return e.data
+	return e.ErrData
 }
 
 // Message returns the message associated with the error.
@@ -150,7 +164,7 @@ func (e *DefaultAPIError) Data() any {
 // Returns:
 //   - string: The message associated with the error.
 func (e *DefaultAPIError) Message() string {
-	return e.message
+	return e.ErrMessage
 }
 
 // Origin returns the origin associated with the error.
@@ -158,5 +172,5 @@ func (e *DefaultAPIError) Message() string {
 // Returns:
 //   - string: The origin associated with the error.
 func (e *DefaultAPIError) Origin() string {
-	return e.origin
+	return e.ErrOrigin
 }

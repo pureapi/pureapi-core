@@ -7,5 +7,4 @@ type APIError interface {
 	Data() any
 	Message() string
 	Origin() string
-	WithOrigin(string) APIError
 }

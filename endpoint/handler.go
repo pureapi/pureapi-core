@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/pureapi/pureapi-core/apierror"
 	"github.com/pureapi/pureapi-core/apierror/types"
 	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
 	"github.com/pureapi/pureapi-core/util"
@@ -135,8 +136,9 @@ func (h *defaultHandler[Input]) handleError(
 	// Add system ID to error if available.
 	if h.systemID != nil {
 		var apiError types.APIError
+		fmt.Println("Appliny system ...")
 		if ok := errors.As(err, &apiError); ok {
-			err = apiError.WithOrigin(*h.systemID)
+			err = apierror.From(apiError).WithOrigin(*h.systemID)
 		}
 	}
 	// Handle error.
