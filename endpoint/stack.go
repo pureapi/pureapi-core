@@ -1,9 +1,9 @@
-package middleware
+package endpoint
 
 import (
 	"sync"
 
-	"github.com/pureapi/pureapi-core/middleware/types"
+	"github.com/pureapi/pureapi-core/endpoint/types"
 )
 
 // defaultStack manages a list of middleware wrappers with concurrency safety

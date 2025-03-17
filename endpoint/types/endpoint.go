@@ -2,15 +2,13 @@ package types
 
 import (
 	"net/http"
-
-	"github.com/pureapi/pureapi-core/middleware/types"
 )
 
 // Endpoint represents an API endpoint with middlewares.
 type Definition interface {
 	URL() string
 	Method() string
-	Stack() types.Stack
+	Stack() Stack
 	Handler() http.HandlerFunc
 }
 

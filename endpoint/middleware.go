@@ -1,4 +1,4 @@
-package middleware
+package endpoint
 
 import (
 	"net/http"

@@ -3,21 +3,19 @@ package endpoint
 import (
 	"net/http"
 
-	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
-	"github.com/pureapi/pureapi-core/middleware"
-	middlewaretypes "github.com/pureapi/pureapi-core/middleware/types"
+	"github.com/pureapi/pureapi-core/endpoint/types"
 )
 
 // defaultEndpoint represents an API endpoint with middlewares.
 type defaultEndpoint struct {
 	url         string
 	method      string
-	middlewares middlewaretypes.Middlewares
+	middlewares types.Middlewares
 	handler     http.HandlerFunc // Optional handler for the endpoint.
 }
 
 // defaultEndpoint implements the Endpoint interface.
-var _ endpointtypes.Endpoint = (*defaultEndpoint)(nil)
+var _ types.Endpoint = (*defaultEndpoint)(nil)
 
 // NewEndpoint creates a new defaultEndpoint with the given details.
 //
@@ -54,13 +52,13 @@ func (e *defaultEndpoint) Method() string {
 }
 
 // Middlewares returns the middlewares of the endpoint. If no middlewares are
-// set, it returns an empty middleware.Middlewares instance.
+// set, it returns an empty Middlewares instance.
 //
 // Returns:
-//   - middleware.Middlewares: The middlewares of the endpoint.
-func (e *defaultEndpoint) Middlewares() middlewaretypes.Middlewares {
+//   - Middlewares: The middlewares of the endpoint.
+func (e *defaultEndpoint) Middlewares() types.Middlewares {
 	if e.middlewares == nil {
-		return middleware.NewMiddlewares()
+		return NewMiddlewares()
 	}
 	return e.middlewares
 }
@@ -82,7 +80,7 @@ func (e *defaultEndpoint) Handler() http.HandlerFunc {
 // Returns:
 //   - Endpoint: A new endpoint.
 func (e *defaultEndpoint) WithMiddlewares(
-	middlewares middlewaretypes.Middlewares,
+	middlewares types.Middlewares,
 ) *defaultEndpoint {
 	new := *e
 	new.middlewares = middlewares

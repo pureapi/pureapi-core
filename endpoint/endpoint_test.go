@@ -5,8 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/pureapi/pureapi-core/middleware"
-	"github.com/pureapi/pureapi-core/middleware/types"
+	"github.com/pureapi/pureapi-core/endpoint/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,7 +31,7 @@ func TestNewEndpoint(t *testing.T) {
 			method:      "",
 			middlewares: nil,
 			middlewareCheck: func(t *testing.T, ep *defaultEndpoint) {
-				assert.Equal(t, ep.Middlewares(), middleware.NewMiddlewares(),
+				assert.Equal(t, ep.Middlewares(), NewMiddlewares(),
 					"Middlewares should be empty default middlewares",
 				)
 			},
@@ -41,13 +40,13 @@ func TestNewEndpoint(t *testing.T) {
 			name:        "Single middleware",
 			url:         "/test",
 			method:      "GET",
-			middlewares: middleware.NewMiddlewares(dummyMiddleware),
+			middlewares: NewMiddlewares(dummyMiddleware),
 		},
 		{
 			name:   "Multiple middlewares",
 			url:    "/api",
 			method: "POST",
-			middlewares: middleware.NewMiddlewares(
+			middlewares: NewMiddlewares(
 				dummyMiddleware,
 				dummyMiddleware,
 			),

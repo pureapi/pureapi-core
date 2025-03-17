@@ -1,7 +1,7 @@
-package middleware
+package endpoint
 
 import (
-	"github.com/pureapi/pureapi-core/middleware/types"
+	"github.com/pureapi/pureapi-core/endpoint/types"
 )
 
 // defaultWrapper encapsulates a middleware with an identifier and optional

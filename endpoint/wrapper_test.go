@@ -1,11 +1,11 @@
-package middleware
+package endpoint
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/pureapi/pureapi-core/middleware/types"
+	"github.com/pureapi/pureapi-core/endpoint/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

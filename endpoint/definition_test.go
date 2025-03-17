@@ -5,33 +5,33 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	middlewaretypes "github.com/pureapi/pureapi-core/middleware/types"
+	"github.com/pureapi/pureapi-core/endpoint/types"
 	"github.com/stretchr/testify/suite"
 )
 
-// dummyStack is a minimal implementation of middlewaretypes.Stack
+// dummyStack is a minimal implementation of types.Stack
 // used for testing.
 type dummyStack struct {
 	id string
 }
 
-func (ds *dummyStack) Wrappers() []middlewaretypes.Wrapper { return nil }
-func (ds *dummyStack) Middlewares() middlewaretypes.Middlewares {
+func (ds *dummyStack) Wrappers() []types.Wrapper { return nil }
+func (ds *dummyStack) Middlewares() types.Middlewares {
 	return nil
 }
-func (ds *dummyStack) Clone() middlewaretypes.Stack {
+func (ds *dummyStack) Clone() types.Stack {
 	return &dummyStack{id: ds.id + "_clone"}
 }
-func (ds *dummyStack) AddWrapper(w middlewaretypes.Wrapper) middlewaretypes.Stack {
+func (ds *dummyStack) AddWrapper(w types.Wrapper) types.Stack {
 	return nil
 }
-func (ds *dummyStack) InsertBefore(id string, w middlewaretypes.Wrapper) (middlewaretypes.Stack, bool) {
+func (ds *dummyStack) InsertBefore(id string, w types.Wrapper) (types.Stack, bool) {
 	return nil, false
 }
-func (ds *dummyStack) InsertAfter(id string, w middlewaretypes.Wrapper) (middlewaretypes.Stack, bool) {
+func (ds *dummyStack) InsertAfter(id string, w types.Wrapper) (types.Stack, bool) {
 	return nil, false
 }
-func (ds *dummyStack) Remove(id string) (middlewaretypes.Stack, bool) { return nil, false }
+func (ds *dummyStack) Remove(id string) (types.Stack, bool) { return nil, false }
 
 // --------------------
 // DefinitionTestSuite
