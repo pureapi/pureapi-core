@@ -33,10 +33,6 @@ func (ds *dummyStack) InsertAfter(id string, w types.Wrapper) (types.Stack, bool
 }
 func (ds *dummyStack) Remove(id string) (types.Stack, bool) { return nil, false }
 
-// --------------------
-// DefinitionTestSuite
-// --------------------
-
 // DefinitionTestSuite is a test suite for the Definition type.
 type DefinitionTestSuite struct {
 	suite.Suite
@@ -51,7 +47,10 @@ func TestDefinitionsTestSuite(t *testing.T) {
 func (s *DefinitionTestSuite) Test_NewDefinition() {
 	ds := &dummyStack{id: "test"}
 	dummyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("ok"))
+		_, err := w.Write([]byte("ok"))
+		if err != nil {
+			panic(err)
+		}
 	})
 	url := "/api/test"
 	method := http.MethodGet
@@ -71,7 +70,10 @@ func (s *DefinitionTestSuite) Test_NewDefinition() {
 func (s *DefinitionTestSuite) Test_Clone() {
 	ds := &dummyStack{id: "cloneTest"}
 	dummyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("original"))
+		_, err := w.Write([]byte("original"))
+		if err != nil {
+			panic(err)
+		}
 	})
 	def := NewDefinition("/test", "POST", ds, dummyHandler)
 	clone := def.Clone()
@@ -128,10 +130,16 @@ func (s *DefinitionTestSuite) Test_WithMethod() {
 // provided handler.
 func (s *DefinitionTestSuite) Test_WithHandler() {
 	handler1 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("first"))
+		_, err := w.Write([]byte("first"))
+		if err != nil {
+			panic(err)
+		}
 	})
 	handler2 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("second"))
+		_, err := w.Write([]byte("second"))
+		if err != nil {
+			panic(err)
+		}
 	})
 	def := NewDefinition("/path", "GET", nil, handler1)
 	newDef := def.WithHandler(handler2)
