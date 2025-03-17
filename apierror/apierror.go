@@ -35,6 +35,10 @@ func NewAPIError(id string) *DefaultAPIError {
 }
 
 // MarshalJSON implements custom JSON marshaling.
+//
+// Returns:
+//   - []byte: The JSON representation of the error.
+//   - error: An error if the marshaling fails.
 func (e *DefaultAPIError) MarshalJSON() ([]byte, error) {
 	// Create an anonymous struct with JSON tags.
 	return json.Marshal(struct {
@@ -51,6 +55,12 @@ func (e *DefaultAPIError) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements custom JSON unmarshaling.
+//
+// Parameters:
+//   - data: The JSON data to unmarshal.
+//
+// Returns:
+//   - error: An error if the unmarshaling fails.
 func (e *DefaultAPIError) UnmarshalJSON(data []byte) error {
 	aux := struct {
 		ID      string `json:"id"`
