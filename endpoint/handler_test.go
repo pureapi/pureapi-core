@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/pureapi/pureapi-core/apierror"
+	apierrortypes "github.com/pureapi/pureapi-core/apierror/types"
 	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
 	utiltypes "github.com/pureapi/pureapi-core/util/types"
 	"github.com/stretchr/testify/suite"
@@ -29,10 +30,10 @@ func (d *dummyInputHandler) Handle(
 type dummyErrorHandler struct {
 	capturedErr error
 	retStatus   int
-	retAPIError *apierror.APIError
+	retAPIError apierrortypes.APIError
 }
 
-func (d *dummyErrorHandler) Handle(err error) (int, *apierror.APIError) {
+func (d *dummyErrorHandler) Handle(err error) (int, apierrortypes.APIError) {
 	d.capturedErr = err
 	return d.retStatus, d.retAPIError
 }
@@ -267,11 +268,11 @@ func (s *HandlerTestSuite) Test_Handle_SystemIDAPIError() {
 	s.NotNil(
 		errHandler.capturedErr, "Error handler should capture error",
 	)
-	var capturedAPIErr *apierror.APIError
+	var capturedAPIErr apierrortypes.APIError
 	ok := errors.As(errHandler.capturedErr, &capturedAPIErr)
 	s.True(ok, "Captured error should be an APIError")
 	s.Equal(
-		*s.systemID, capturedAPIErr.Origin,
+		*s.systemID, capturedAPIErr.Origin(),
 		"APIError origin should be set to systemID",
 	)
 }

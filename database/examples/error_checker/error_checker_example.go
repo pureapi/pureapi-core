@@ -8,9 +8,10 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/pureapi/pureapi-core/apierror"
+	apierrortypes "github.com/pureapi/pureapi-core/apierror/types"
 	"github.com/pureapi/pureapi-core/database"
 	dbexamples "github.com/pureapi/pureapi-core/database/examples"
-	"github.com/pureapi/pureapi-core/database/types"
+	databasetypes "github.com/pureapi/pureapi-core/database/types"
 )
 
 // SimpleErrorChecker is a trivial custom error checker that returns a custom
@@ -52,7 +53,7 @@ func main() {
 //
 // Parameters:
 //   - db: The database handle.
-func InvalidQuery(db types.DB) {
+func InvalidQuery(db databasetypes.DB) {
 	_, err := database.Exec(
 		context.Background(),
 		db,
@@ -64,13 +65,13 @@ func InvalidQuery(db types.DB) {
 		log.Printf("InvalidQuery error: %v", err)
 
 		// Check if the error is an APIError and log its details.
-		var apiErr *apierror.APIError
+		var apiErr apierrortypes.APIError
 		if errors.As(err, &apiErr) {
 			log.Printf(
 				"APIError, ID: %v, data: %s, origin: %v",
-				apiErr.ID,
-				apiErr.Data,
-				apiErr.Origin,
+				apiErr.ID(),
+				apiErr.Data(),
+				apiErr.Origin(),
 			)
 		}
 	}
