@@ -7,9 +7,9 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
+	"github.com/pureapi/pureapi-core/database"
 	"github.com/pureapi/pureapi-core/database/examples"
 	"github.com/pureapi/pureapi-core/database/types"
-	"github.com/pureapi/pureapi-core/repository"
 )
 
 // Order represents an order in our orders table.
@@ -155,7 +155,7 @@ func BeginTx(ctx context.Context, db types.DB) (types.Tx, error) {
 //   - int64: The ID of the inserted order.
 func InsertOrder(ctx context.Context, tx types.Tx) int64 {
 	insertSQL := "INSERT INTO orders (item, quantity) VALUES (?, ?);"
-	res, err := repository.Exec(
+	res, err := database.Exec(
 		ctx, tx, insertSQL, []any{"Book", 5}, &CustomErrorChecker{},
 	)
 	if err != nil {
@@ -191,7 +191,7 @@ func UpdateOrder(
 ) {
 	// Otherwise, update the order.
 	updateSQL := "UPDATE orders SET quantity = ? WHERE id = ?;"
-	_, err := repository.Exec(
+	_, err := database.Exec(
 		ctx, tx, updateSQL, []any{10, orderID}, &CustomErrorChecker{},
 	)
 	if err != nil {
@@ -209,7 +209,7 @@ func UpdateOrder(
 // Parameters:
 //   - db: The database connection.
 func GetOrderCount(ctx context.Context, preparer types.Preparer) {
-	count, err := repository.QuerySingleValue(
+	count, err := database.QuerySingleValue(
 		ctx,
 		preparer,
 		"SELECT COUNT(*) FROM orders;",
@@ -230,7 +230,7 @@ func GetOrderCount(ctx context.Context, preparer types.Preparer) {
 func GetOrderByID(
 	ctx context.Context, preparer types.Preparer, orderID int64,
 ) {
-	order, err := repository.QuerySingleEntity(
+	order, err := database.QuerySingleEntity(
 		ctx,
 		preparer,
 		"SELECT id, item, quantity FROM orders WHERE id = ?;",

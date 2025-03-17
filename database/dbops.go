@@ -1,11 +1,10 @@
-package repository
+package database
 
 import (
 	"context"
 	"fmt"
 
 	databasetypes "github.com/pureapi/pureapi-core/database/types"
-	repositorytypes "github.com/pureapi/pureapi-core/repository/types"
 )
 
 // Exec prepares and executes a query with parameters, returning the Result.
@@ -25,7 +24,7 @@ func Exec(
 	preparer databasetypes.Preparer,
 	query string,
 	parameters []any,
-	errorChecker repositorytypes.ErrorChecker,
+	errorChecker databasetypes.ErrorChecker,
 ) (databasetypes.Result, error) {
 	if preparer == nil {
 		return nil, fmt.Errorf("Exec: preparer is nil")
@@ -59,7 +58,7 @@ func Query(
 	preparer databasetypes.Preparer,
 	query string,
 	parameters []any,
-	errorChecker repositorytypes.ErrorChecker,
+	errorChecker databasetypes.ErrorChecker,
 ) (databasetypes.Rows, databasetypes.Stmt, error) {
 	if preparer == nil {
 		return nil, nil, fmt.Errorf("Query: preparer is nil")
@@ -91,7 +90,7 @@ func ExecRaw(
 	db databasetypes.DB,
 	query string,
 	parameters []any,
-	errorChecker repositorytypes.ErrorChecker,
+	errorChecker databasetypes.ErrorChecker,
 ) (databasetypes.Result, error) {
 	if db == nil {
 		return nil, fmt.Errorf("ExecRaw: db is nil")
@@ -124,7 +123,7 @@ func QueryRaw(
 	db databasetypes.DB,
 	query string,
 	parameters []any,
-	errorChecker repositorytypes.ErrorChecker,
+	errorChecker databasetypes.ErrorChecker,
 ) (databasetypes.Rows, error) {
 	if db == nil {
 		return nil, fmt.Errorf("QueryRaw: db is nil")
@@ -160,7 +159,7 @@ func QuerySingleValue[T any](
 	preparer databasetypes.Preparer,
 	query string,
 	parameters []any,
-	errorChecker repositorytypes.ErrorChecker,
+	errorChecker databasetypes.ErrorChecker,
 	factoryFn func() T,
 ) (T, error) {
 	var zero T
@@ -206,7 +205,7 @@ func QuerySingleEntity[Entity databasetypes.Getter](
 	preparer databasetypes.Preparer,
 	query string,
 	parameters []any,
-	errorChecker repositorytypes.ErrorChecker,
+	errorChecker databasetypes.ErrorChecker,
 	factoryFn func() Entity,
 ) (Entity, error) {
 	var zero Entity
@@ -250,7 +249,7 @@ func QueryEntities[Entity databasetypes.Getter](
 	preparer databasetypes.Preparer,
 	query string,
 	parameters []any,
-	errorChecker repositorytypes.ErrorChecker,
+	errorChecker databasetypes.ErrorChecker,
 	factoryFn func() Entity,
 ) ([]Entity, error) {
 	rows, stmt, err := Query(ctx, preparer, query, parameters, errorChecker)

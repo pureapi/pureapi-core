@@ -1,4 +1,4 @@
-package repository
+package database
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pureapi/pureapi-core/database"
 	"github.com/pureapi/pureapi-core/database/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -44,7 +43,7 @@ func TestDBOpsIntTestSuite(t *testing.T) {
 // SetupTest opens an in-memory SQLite3 connection.
 func (s *DBOpsIntTestSuite) SetupTest() {
 	s.ctx = context.Background()
-	cfg := database.ConnectConfig{
+	cfg := ConnectConfig{
 		Driver:          "sqlite3",
 		ConnMaxLifetime: 5 * time.Minute,
 		ConnMaxIdleTime: 2 * time.Minute,
@@ -52,8 +51,8 @@ func (s *DBOpsIntTestSuite) SetupTest() {
 		MaxIdleConns:    5,
 	}
 	var err error
-	s.db, err = database.Connect(
-		cfg, database.NewSQLDBAdapter, "file::memory:?cache=shared",
+	s.db, err = Connect(
+		cfg, NewSQLDBAdapter, "file::memory:?cache=shared",
 	)
 	require.NoError(s.T(), err)
 	require.NotNil(s.T(), s.db)

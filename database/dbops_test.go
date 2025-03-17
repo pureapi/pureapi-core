@@ -1,4 +1,4 @@
-package repository
+package database
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/pureapi/pureapi-core/database/types"
-	repotypes "github.com/pureapi/pureapi-core/repository/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -170,7 +169,7 @@ func (fdb *fakeDB) BeginTx(ctx context.Context,
 	return nil, errors.New("not implemented")
 }
 
-// fakeErrorChecker implements repotypes.ErrorChecker.
+// fakeErrorChecker implements types.ErrorChecker.
 type fakeErrorChecker struct {
 	prefix string
 }
@@ -199,7 +198,7 @@ func (fe *fakeEntity) ScanRow(row types.Row) error {
 type DBOpsTestSuite struct {
 	suite.Suite
 	ctx          context.Context
-	errorChecker repotypes.ErrorChecker
+	errorChecker types.ErrorChecker
 }
 
 // TestDBOpsTestSuite registers the test suite.

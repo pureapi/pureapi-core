@@ -7,9 +7,9 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
+	"github.com/pureapi/pureapi-core/database"
 	"github.com/pureapi/pureapi-core/database/examples"
 	"github.com/pureapi/pureapi-core/database/types"
-	"github.com/pureapi/pureapi-core/repository"
 )
 
 // Product represents a product entity.
@@ -39,7 +39,7 @@ func (cec *CustomErrorChecker) Check(err error) error {
 }
 
 // This example demonstrates basic database operations using common database
-// functions from the repository package.
+// functions from the database package.
 func main() {
 	// Connect to the database.
 	db, err := examples.Connect(examples.Cfg(), examples.DummyConnectionOpen)
@@ -123,7 +123,7 @@ func CreateTable(db types.DB) {
 func InsertProducts(preparer types.Preparer) {
 	// Insert two products using Exec.
 	insertSQL := "INSERT INTO products (name, price) VALUES (?, ?);"
-	if _, err := repository.Exec(
+	if _, err := database.Exec(
 		context.Background(),
 		preparer,
 		insertSQL,
@@ -131,7 +131,7 @@ func InsertProducts(preparer types.Preparer) {
 	); err != nil {
 		log.Fatalf("Error inserting product 1: %v", err)
 	}
-	if _, err := repository.Exec(
+	if _, err := database.Exec(
 		context.Background(),
 		preparer,
 		insertSQL,
@@ -149,7 +149,7 @@ func InsertProducts(preparer types.Preparer) {
 //   - db: The database handle.
 func UpdateProduct(preparer types.Preparer) {
 	updateSQL := "UPDATE products SET price = ? WHERE id = ?;"
-	res, err := repository.Exec(
+	res, err := database.Exec(
 		context.Background(),
 		preparer,
 		updateSQL,
@@ -173,7 +173,7 @@ func UpdateProduct(preparer types.Preparer) {
 //   - db: The database handle.
 func UpdateProductRaw(db types.DB) {
 	updateSQL := "UPDATE products SET price = ? WHERE id = ?;"
-	res, err := repository.ExecRaw(
+	res, err := database.ExecRaw(
 		context.Background(),
 		db,
 		updateSQL,
@@ -199,7 +199,7 @@ func UpdateProductRaw(db types.DB) {
 // Parameters:
 //   - db: The database handle.
 func QueryProductCount(preparer types.Preparer) {
-	count, err := repository.QuerySingleValue(
+	count, err := database.QuerySingleValue(
 		context.Background(),
 		preparer,
 		"SELECT COUNT(*) FROM products;",
@@ -219,7 +219,7 @@ func QueryProductCount(preparer types.Preparer) {
 // Parameters:
 //   - db: The database handle.
 func GetProduct(preparer types.Preparer) {
-	product, err := repository.QuerySingleEntity(
+	product, err := database.QuerySingleEntity(
 		context.Background(),
 		preparer,
 		"SELECT id, name, price FROM products WHERE id = ?;",
@@ -239,7 +239,7 @@ func GetProduct(preparer types.Preparer) {
 // Parameters:
 //   - db: The database handle.
 func GetProductRaw(db types.DB) {
-	rows, err := repository.QueryRaw(
+	rows, err := database.QueryRaw(
 		context.Background(),
 		db,
 		"SELECT id, name, price FROM products WHERE price > ?;",
@@ -273,7 +273,7 @@ func GetProductRaw(db types.DB) {
 //   - db: The database handle.
 func GetAllProducts(preparer types.Preparer) {
 	// Query all products and map them into a slice of Product structs.
-	products, err := repository.QueryEntities(
+	products, err := database.QueryEntities(
 		context.Background(),
 		preparer,
 		"SELECT id, name, price FROM products;",
@@ -304,7 +304,7 @@ func DemoRowToEntity(db types.DB) {
 	}
 	defer stmt.Close()
 	row := stmt.QueryRow(1)
-	product, err := repository.RowToEntity(
+	product, err := database.RowToEntity(
 		context.Background(), row, func() *Product { return &Product{} },
 	)
 	if err != nil {
@@ -325,7 +325,7 @@ func DemoRowToAny(db types.DB) {
 	}
 	defer stmt.Close()
 	row := stmt.QueryRow(2)
-	namePtr, err := repository.RowToAny(
+	namePtr, err := database.RowToAny(
 		context.Background(), row, func() *string { return new(string) },
 	)
 	if err != nil {
@@ -345,7 +345,7 @@ func DemoRowsToAny(db types.DB) {
 		log.Fatalf("Query error in DemoRowsToAny: %v", err)
 	}
 	defer rows.Close()
-	names, err := repository.RowsToAny(
+	names, err := database.RowsToAny(
 		context.Background(), rows, func() *string { return new(string) },
 	)
 	if err != nil {
@@ -368,7 +368,7 @@ func DemoRowsToEntities(db types.DB) {
 		log.Fatalf("Query error in DemoRowsToEntities: %v", err)
 	}
 	defer rows.Close()
-	products, err := repository.RowsToEntities(
+	products, err := database.RowsToEntities(
 		context.Background(), rows, func() *Product { return &Product{} },
 	)
 	if err != nil {
