@@ -18,7 +18,6 @@ import (
 // FuzzHTTPRequest sends fuzzed HTTP request data to the test server.
 // It will help uncover vulnerabilities, crashes, or unexpected behavior.
 // Run with: go test -fuzz=FuzzHTTPRequest
-
 func FuzzHTTPRequest(f *testing.F) {
 	// startTestServer accepts testing.TB so *testing.F works.
 	addr, shutdown := startFuzzTestServer(f)
