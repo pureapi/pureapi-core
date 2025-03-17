@@ -33,17 +33,21 @@ type HandlerLogicFn[Input any] func(
 // endpointHandler represents an endpoint with input, business logic, and
 // output.
 type endpointHandler[Input any] struct {
+	systemID       *string
 	inputHandler   inputtypes.Handler[Input]
 	inputFactoryFn InputFactoryFn[Input]
 	handlerLogicFn HandlerLogicFn[Input]
 	errorHandler   apitypes.ErrorHandler
 	outputHandler  inputtypes.OutputHandler
 	emitterLogger  utiltypes.EmitterLogger
-	systemID       *string
 }
 
-// NewEndpointHandler creates a new EndpointHandler with optional
-// customizations.
+// NewEndpointHandler creates a new endpointHandler. During requst handling it
+// executes common endpoints logic. It calls the input handler, handler
+// logic, and output handler. Before calling the error handler it adds the
+// system ID to any APIError instances passing through this handler. This can be
+// useful for filtering errors based on the system ID in the error handler.
+// If an error occurs during output handling, it will write a 500 error.
 //
 // Parameters:
 //   - systemID: The optional system ID. It is used to add the system ID to any
@@ -83,8 +87,8 @@ func NewEndpointHandler[Input any](
 	}
 }
 
-// Handle executes common endpoints logic: input decoding, business logic, and
-// output.
+// Handle executes common endpoints logic. It calls the input handler, handler
+// logic, and output handler.
 //
 // Parameters:
 //   - w: The HTTP response writer.
