@@ -24,11 +24,17 @@ func (s *DefinitionsTestSuite) Test_NewDefinitionsAndAdd() {
 	// Create two definitions with simple handlers.
 	d1 := NewDefinition("/one", "GET", nil,
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("one"))
+			_, err := w.Write([]byte("one"))
+			if err != nil {
+				panic(err)
+			}
 		}))
 	d2 := NewDefinition("/two", "POST", nil,
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("two"))
+			_, err := w.Write([]byte("two"))
+			if err != nil {
+				panic(err)
+			}
 		}))
 	defs := NewDefinitions(d1)
 	s.Equal(1, len(defs.definitions))
@@ -45,11 +51,17 @@ func (s *DefinitionsTestSuite) Test_ToEndpoints() {
 	// Create two definitions.
 	d1 := NewDefinition("/one", "GET", nil,
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("one"))
+			_, err := w.Write([]byte("one"))
+			if err != nil {
+				panic(err)
+			}
 		}))
 	d2 := NewDefinition("/two", "POST", nil,
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("two"))
+			_, err := w.Write([]byte("two"))
+			if err != nil {
+				panic(err)
+			}
 		}))
 	defs := NewDefinitions(d1, d2)
 	endpoints := defs.ToEndpoints()

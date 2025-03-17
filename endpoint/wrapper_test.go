@@ -37,7 +37,10 @@ func TestBuild(t *testing.T) {
 	// Test middleware behavior: create a handler that writes "ok", wrap it,
 	// and verify that the header "X-Test" is added.
 	final := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("ok"))
+		_, err := w.Write([]byte("ok"))
+		if err != nil {
+			panic(err)
+		}
 	})
 	wrapped := mws.Chain(final)
 	req := httptest.NewRequest("GET", "/test", nil)

@@ -81,7 +81,10 @@ func TestEndpointWithHandler(t *testing.T) {
 	dummyHandler := func(w http.ResponseWriter, r *http.Request) {
 		handlerCalled = true
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("hello"))
+		_, err := w.Write([]byte("hello"))
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// Use WithHandler to attach the dummy handler.
