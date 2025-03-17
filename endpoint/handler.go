@@ -1,12 +1,9 @@
 package endpoint
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
-	"github.com/pureapi/pureapi-core/apierror"
-	"github.com/pureapi/pureapi-core/apierror/types"
 	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
 	"github.com/pureapi/pureapi-core/util"
 	utiltypes "github.com/pureapi/pureapi-core/util/types"
@@ -30,7 +27,6 @@ type HandlerLogicFn[Input any] func(
 // defaultHandler represents an endpoint with input, business logic, and
 // output.
 type defaultHandler[Input any] struct {
-	systemID       *string
 	inputHandler   endpointtypes.InputHandler[Input]
 	handlerLogicFn HandlerLogicFn[Input]
 	errorHandler   endpointtypes.ErrorHandler
@@ -40,10 +36,8 @@ type defaultHandler[Input any] struct {
 
 // NewHandler creates a new handler. During requst handling it
 // executes common endpoints logic. It calls the input handler, handler
-// logic, and output handler. Before calling the error handler it adds the
-// system ID to any APIError instances passing through this handler. This can be
-// useful for filtering errors based on the system ID in the error handler.
-// If an error occurs during output handling, it will write a 500 error.
+// logic, and output handler. If an error occurs during output handling, it
+// will write a 500 error.
 //
 // Parameters:
 //   - inputHandler: The input handler.
@@ -66,23 +60,6 @@ func NewHandler[Input any](
 		outputHandler:  outputHandler,
 		emitterLogger:  defaultEmitterLogger(),
 	}
-}
-
-// WithSystemID adds a system ID to the handler.
-//
-// Parameters:
-//   - systemID: The optional system ID. It is used to add the system ID to any
-//     APIError instances passing through this handler. If the system ID is nil,
-//     no system ID is added.
-//
-// Returns:
-//   - *handler: A new handler instance.
-func (h *defaultHandler[Input]) WithSystemID(
-	systemID *string,
-) *defaultHandler[Input] {
-	new := *h
-	new.systemID = systemID
-	return &new
 }
 
 // WithEmitterLogger adds an emitter logger to the handler.
@@ -133,13 +110,6 @@ func (h *defaultHandler[Input]) Handle(
 func (h *defaultHandler[Input]) handleError(
 	w http.ResponseWriter, r *http.Request, err error,
 ) {
-	// Add system ID to error if available.
-	if h.systemID != nil {
-		var apiError types.APIError
-		if ok := errors.As(err, &apiError); ok {
-			err = apierror.From(apiError).WithOrigin(*h.systemID)
-		}
-	}
 	// Handle error.
 	statusCode, outError := h.errorHandler.Handle(err)
 	h.emitterLogger.Trace(

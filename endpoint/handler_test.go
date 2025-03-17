@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/pureapi/pureapi-core/apierror"
 	apierrortypes "github.com/pureapi/pureapi-core/apierror/types"
 	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
 	utiltypes "github.com/pureapi/pureapi-core/util/types"
@@ -214,7 +213,7 @@ func (s *HandlerTestSuite) Test_Handle() {
 
 			handler := NewHandler(
 				inHandler, logicFn, errHandler, outHandler,
-			).WithSystemID(s.systemID).WithEmitterLogger(emitter)
+			).WithEmitterLogger(emitter)
 
 			// Create request and invoke handler.
 			rr := httptest.NewRecorder()
@@ -235,48 +234,6 @@ func (s *HandlerTestSuite) Test_Handle() {
 	}
 }
 
-// Test_Handle_SystemIDAPIError verifies that when an APIError is encountered,
-// the systemID is propagated.
-func (s *HandlerTestSuite) Test_Handle_SystemIDAPIError() {
-	// Create an APIError with default origin.
-	apiErr := apierror.NewAPIError("ERR001")
-	inHandler := &dummyInputHandler{
-		result: nil,
-		err:    apiErr,
-	}
-	logicFn := func(
-		w http.ResponseWriter, r *http.Request, i *string,
-	) (any, error) {
-		return nil, nil
-	}
-	outHandler := &dummyOutputHandler{}
-	// Error handler returns status 500.
-	errHandler := &dummyErrorHandler{
-		retStatus:   500,
-		retAPIError: nil,
-	}
-	emitter := &dummyEmitterLogger{}
-
-	handler := NewHandler(inHandler, logicFn, errHandler, outHandler).
-		WithSystemID(s.systemID).WithEmitterLogger(emitter)
-
-	// Create request and invoke handler.
-	rr := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/apierror", nil)
-	handler.Handle(rr, req)
-
-	s.NotNil(
-		errHandler.capturedErr, "Error handler should capture error",
-	)
-	var capturedAPIErr apierrortypes.APIError
-	ok := errors.As(errHandler.capturedErr, &capturedAPIErr)
-	s.True(ok, "Captured error should be an APIError")
-	s.Equal(
-		*s.systemID, capturedAPIErr.Origin(),
-		"APIError origin should be set to systemID",
-	)
-}
-
 // Test_Handle_NilEmitterLogger verifies that passing a nil emitter logger
 // defaults correctly.
 func (s *HandlerTestSuite) Test_Handle_NilEmitterLogger() {
@@ -294,8 +251,7 @@ func (s *HandlerTestSuite) Test_Handle_NilEmitterLogger() {
 	errHandler := &dummyErrorHandler{}
 
 	// Create handler without emitter. Should use a noop emitter.
-	handler := NewHandler(inHandler, logicFn, errHandler, outHandler).
-		WithSystemID(s.systemID)
+	handler := NewHandler(inHandler, logicFn, errHandler, outHandler)
 
 	// Create request and invoke handler.
 	rr := httptest.NewRecorder()

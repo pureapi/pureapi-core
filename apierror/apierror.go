@@ -9,16 +9,15 @@ import (
 
 // DefaultAPIError represents a JSON marshalable custom error type.
 type DefaultAPIError struct {
-	ErrID      string `json:"id"`
-	ErrData    any    `json:"data,omitempty"`
-	ErrMessage string `json:"message,omitempty"`
-	ErrOrigin  string `json:"origin,omitempty"`
+	ErrID      string  `json:"id"`
+	ErrData    any     `json:"data,omitempty"`
+	ErrMessage string  `json:"message,omitempty"`
+	ErrOrigin  *string `json:"origin,omitempty"`
 }
 
 var _ types.APIError = (*DefaultAPIError)(nil)
 
-// NewAPIError returns a new error with the given ID. The origin is set to "-"
-// to control data leakage through empty origins.
+// NewAPIError returns a new error with the given ID.
 //
 // Parameters:
 //   - id: The ID of the error.
@@ -30,7 +29,7 @@ func NewAPIError(id string) *DefaultAPIError {
 		ErrID:      id,
 		ErrData:    nil,
 		ErrMessage: "",
-		ErrOrigin:  "-", // Set to prevent empty origin.
+		ErrOrigin:  nil,
 	}
 }
 
@@ -125,7 +124,7 @@ func (e *DefaultAPIError) WithMessage(message string) *DefaultAPIError {
 //
 // Returns:
 //   - *defaultAPIError: A new defaultAPIError.
-func (e *DefaultAPIError) WithOrigin(origin string) *DefaultAPIError {
+func (e *DefaultAPIError) WithOrigin(origin *string) *DefaultAPIError {
 	new := *e
 	new.ErrOrigin = origin
 	return &new
@@ -171,6 +170,6 @@ func (e *DefaultAPIError) Message() string {
 //
 // Returns:
 //   - string: The origin associated with the error.
-func (e *DefaultAPIError) Origin() string {
+func (e *DefaultAPIError) Origin() *string {
 	return e.ErrOrigin
 }
