@@ -1,12 +1,12 @@
-package api
+package endpoint
 
 import (
 	"errors"
 	"fmt"
 	"net/http"
 
-	apitypes "github.com/pureapi/pureapi-core/api/types"
 	"github.com/pureapi/pureapi-core/apierror"
+	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
 	inputtypes "github.com/pureapi/pureapi-core/input/types"
 	"github.com/pureapi/pureapi-core/util"
 	utiltypes "github.com/pureapi/pureapi-core/util/types"
@@ -37,7 +37,7 @@ type endpointHandler[Input any] struct {
 	inputHandler   inputtypes.Handler[Input]
 	inputFactoryFn InputFactoryFn[Input]
 	handlerLogicFn HandlerLogicFn[Input]
-	errorHandler   apitypes.ErrorHandler
+	errorHandler   endpointtypes.ErrorHandler
 	outputHandler  inputtypes.OutputHandler
 	emitterLogger  utiltypes.EmitterLogger
 }
@@ -66,7 +66,7 @@ func NewEndpointHandler[Input any](
 	inputHandler inputtypes.Handler[Input],
 	inputFactoryFn InputFactoryFn[Input],
 	handlerLogicFn HandlerLogicFn[Input],
-	errorHandler apitypes.ErrorHandler,
+	errorHandler endpointtypes.ErrorHandler,
 	outputHandler inputtypes.OutputHandler,
 	emitterLogger utiltypes.EmitterLogger,
 ) *endpointHandler[Input] {
