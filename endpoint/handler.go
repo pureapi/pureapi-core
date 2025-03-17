@@ -136,7 +136,6 @@ func (h *defaultHandler[Input]) handleError(
 	// Add system ID to error if available.
 	if h.systemID != nil {
 		var apiError types.APIError
-		fmt.Println("Appliny system ...")
 		if ok := errors.As(err, &apiError); ok {
 			err = apierror.From(apiError).WithOrigin(*h.systemID)
 		}
