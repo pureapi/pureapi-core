@@ -25,13 +25,19 @@ func (ds *dummyStack) Clone() types.Stack {
 func (ds *dummyStack) AddWrapper(w types.Wrapper) types.Stack {
 	return nil
 }
-func (ds *dummyStack) InsertBefore(id string, w types.Wrapper) (types.Stack, bool) {
+func (ds *dummyStack) InsertBefore(
+	id string, w types.Wrapper,
+) (types.Stack, bool) {
 	return nil, false
 }
-func (ds *dummyStack) InsertAfter(id string, w types.Wrapper) (types.Stack, bool) {
+func (ds *dummyStack) InsertAfter(
+	id string, w types.Wrapper,
+) (types.Stack, bool) {
 	return nil, false
 }
-func (ds *dummyStack) Remove(id string) (types.Stack, bool) { return nil, false }
+func (ds *dummyStack) Remove(id string) (types.Stack, bool) {
+	return nil, false
+}
 
 // DefinitionTestSuite is a test suite for the Definition type.
 type DefinitionTestSuite struct {
@@ -46,12 +52,14 @@ func TestDefinitionsTestSuite(t *testing.T) {
 // Test_NewDefinition tests that NewDefinition returns a valid definition.
 func (s *DefinitionTestSuite) Test_NewDefinition() {
 	ds := &dummyStack{id: "test"}
-	dummyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte("ok"))
-		if err != nil {
-			panic(err)
-		}
-	})
+	dummyHandler := http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			_, err := w.Write([]byte("ok"))
+			if err != nil {
+				panic(err)
+			}
+		},
+	)
 	url := "/api/test"
 	method := http.MethodGet
 	def := NewDefinition(url, method, ds, dummyHandler)
@@ -69,12 +77,14 @@ func (s *DefinitionTestSuite) Test_NewDefinition() {
 // Test_Clone tests that Clone returns a deep copy of the definition.
 func (s *DefinitionTestSuite) Test_Clone() {
 	ds := &dummyStack{id: "cloneTest"}
-	dummyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte("original"))
-		if err != nil {
-			panic(err)
-		}
-	})
+	dummyHandler := http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			_, err := w.Write([]byte("original"))
+			if err != nil {
+				panic(err)
+			}
+		},
+	)
 	def := NewDefinition("/test", "POST", ds, dummyHandler)
 	clone := def.Clone()
 
@@ -89,7 +99,10 @@ func (s *DefinitionTestSuite) Test_Clone() {
 	req := httptest.NewRequest("GET", "/test", nil)
 	def.Handler()(rr1, req)
 	clone.Handler()(rr2, req)
-	s.Equal(rr1.Body.String(), rr2.Body.String(), "cloned handler should produce same output")
+	s.Equal(
+		rr1.Body.String(), rr2.Body.String(),
+		"cloned handler should produce same output",
+	)
 
 	// Ensure that the middleware stack was cloned.
 	s.NotEqual(def.Stack(), clone.Stack())
