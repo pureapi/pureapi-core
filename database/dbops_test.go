@@ -201,7 +201,7 @@ type DBOpsTestSuite struct {
 	errorChecker types.ErrorChecker
 }
 
-// TestDBOpsTestSuite registers the test suite.
+// TestDBOpsTestSuite runs the test suite.
 func TestDBOpsTestSuite(t *testing.T) {
 	suite.Run(t, new(DBOpsTestSuite))
 }

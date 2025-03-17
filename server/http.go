@@ -11,9 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/pureapi/pureapi-core/endpoint"
-	"github.com/pureapi/pureapi-core/middleware"
-	"github.com/pureapi/pureapi-core/server/types"
+	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
+	servertypes "github.com/pureapi/pureapi-core/server/types"
 	"github.com/pureapi/pureapi-core/util"
 	utiltypes "github.com/pureapi/pureapi-core/util/types"
 )
@@ -43,7 +42,7 @@ const (
 // Returns:
 //   - *http.Server: http.Server instance.
 func DefaultHTTPServer(
-	handler *Handler, port int, endpoints []endpoint.Endpoint,
+	handler *Handler, port int, endpoints []endpointtypes.Endpoint,
 ) *http.Server {
 	return &http.Server{
 		Addr:           fmt.Sprintf(":%d", port),
@@ -68,7 +67,9 @@ func DefaultHTTPServer(
 // Returns:
 //   - error: Error starting the server.
 func StartServer(
-	handler *Handler, server types.HTTPServer, shutdownTimeout *time.Duration,
+	handler *Handler,
+	server servertypes.HTTPServer,
+	shutdownTimeout *time.Duration,
 ) error {
 	var useShutdownTimeout time.Duration
 	if shutdownTimeout == nil {
@@ -95,7 +96,7 @@ type Handler struct {
 //   - eventEmitter: Optional event emitter.
 //
 // Returns:
-//   - *Handler: HTTP server handler.
+//   - *Handler: A new Handler instance.
 func NewHandler(emitterLogger utiltypes.EmitterLogger) *Handler {
 	var useEmitterLogger utiltypes.EmitterLogger
 	if emitterLogger == nil {
@@ -110,7 +111,9 @@ func NewHandler(emitterLogger utiltypes.EmitterLogger) *Handler {
 
 // startServer starts the HTTP server and listens for shutdown signals.
 func (s *Handler) startServer(
-	stopChan chan os.Signal, server types.HTTPServer, shutdownTimeout time.Duration,
+	stopChan chan os.Signal,
+	server servertypes.HTTPServer,
+	shutdownTimeout time.Duration,
 ) error {
 	// Prepare channel for shutdown signal.
 	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM)
@@ -148,7 +151,7 @@ func (s *Handler) startServer(
 
 // listenAndServe listens and serves the HTTP server.
 func (s *Handler) listenAndServe(
-	server types.HTTPServer, errChan chan error, stopChan chan os.Signal,
+	server servertypes.HTTPServer, errChan chan error, stopChan chan os.Signal,
 ) {
 	s.emitterLogger.Info(
 		utiltypes.NewEvent(EventStart, "Starting HTTP server"),
@@ -171,7 +174,7 @@ func (s *Handler) listenAndServe(
 
 // setupMux sets up the HTTP mux with the specified endpoints.
 func (s *Handler) setupMux(
-	httpEndpoints []endpoint.Endpoint,
+	httpEndpoints []endpointtypes.Endpoint,
 ) *http.ServeMux {
 	mux := http.NewServeMux()
 	endpoints := s.multiplexEndpoints(httpEndpoints)
@@ -242,7 +245,7 @@ func (s *Handler) createNotFoundHandler() http.HandlerFunc {
 
 // multiplexEndpoints multiplexes endpoints by URL and method.
 func (s *Handler) multiplexEndpoints(
-	endpoints []endpoint.Endpoint,
+	endpoints []endpointtypes.Endpoint,
 ) map[string]map[string]http.Handler {
 	multiplexed := make(map[string]map[string]http.Handler)
 	for _, endpoint := range endpoints {
@@ -253,21 +256,23 @@ func (s *Handler) multiplexEndpoints(
 
 // multiplexEndpoint multiplexes an endpoint by URL and method.
 func (s *Handler) multiplexEndpoint(
-	endpoint endpoint.Endpoint, multiplexed map[string]map[string]http.Handler,
+	endpoint endpointtypes.Endpoint,
+	multiplexed map[string]map[string]http.Handler,
 ) {
-	if multiplexed[endpoint.URL] == nil {
-		multiplexed[endpoint.URL] = make(map[string]http.Handler)
+	if multiplexed[endpoint.URL()] == nil {
+		multiplexed[endpoint.URL()] = make(map[string]http.Handler)
 	}
-	multiplexed[endpoint.URL][endpoint.Method] = s.serverPanicHandler(
-		middleware.Chain(emptyOrCustomHandler(endpoint), endpoint.Middlewares),
+	middlewares := endpoint.Middlewares()
+	multiplexed[endpoint.URL()][endpoint.Method()] = s.serverPanicHandler(
+		middlewares.Chain(emptyOrCustomHandler(endpoint)),
 	)
 }
 
 // emptyOrCustomHandler determines the HTTP handler for the endpoint.
-func emptyOrCustomHandler(endpoint endpoint.Endpoint) http.Handler {
-	if endpoint.Handler != nil {
+func emptyOrCustomHandler(endpoint endpointtypes.Endpoint) http.Handler {
+	if endpoint.Handler() != nil {
 		// Use the provided handler.
-		return http.HandlerFunc(endpoint.Handler)
+		return http.HandlerFunc(endpoint.Handler())
 	}
 	// Fallback to a default no-op handler.
 	return http.HandlerFunc(

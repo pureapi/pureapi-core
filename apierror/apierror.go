@@ -20,11 +20,13 @@ type APIError struct {
 //   - id: The ID of the error.
 //
 // Returns:
-//   - *APIError: A new APIError.
+//   - *APIError: A new APIError instance.
 func NewAPIError(id string) *APIError {
 	return &APIError{
-		ID:     id,
-		Origin: "-", // Set to prevent empty origin.
+		ID:      id,
+		Data:    nil,
+		Message: nil,
+		Origin:  "-", // Set to prevent empty origin.
 	}
 }
 
@@ -36,9 +38,9 @@ func NewAPIError(id string) *APIError {
 // Returns:
 //   - *APIError: A new APIError.
 func (e *APIError) WithData(data any) *APIError {
-	newAPIError := *e
-	newAPIError.Data = data
-	return &newAPIError
+	new := *e
+	new.Data = data
+	return &new
 }
 
 // WithMessage returns a new error with the given message.
@@ -49,9 +51,9 @@ func (e *APIError) WithData(data any) *APIError {
 // Returns:
 //   - *APIError: A new APIError.
 func (e *APIError) WithMessage(message string) *APIError {
-	newAPIError := *e
-	newAPIError.Message = &message
-	return &newAPIError
+	new := *e
+	new.Message = &message
+	return &new
 }
 
 // WithOrigin returns a new error with the given origin.
@@ -62,9 +64,9 @@ func (e *APIError) WithMessage(message string) *APIError {
 // Returns:
 //   - *APIError: A new APIError.
 func (e *APIError) WithOrigin(origin string) *APIError {
-	newAPIError := *e
-	newAPIError.Origin = origin
-	return &newAPIError
+	new := *e
+	new.Origin = origin
+	return &new
 }
 
 // Error returns the full error message as a string. If the error has a message,

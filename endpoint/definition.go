@@ -3,35 +3,39 @@ package endpoint
 import (
 	"net/http"
 
-	"github.com/pureapi/pureapi-core/middleware/types"
+	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
+	"github.com/pureapi/pureapi-core/middleware"
+	middlewaretypes "github.com/pureapi/pureapi-core/middleware/types"
 )
 
-// Definition represents an endpoint definition.
-type Definition struct {
+// defaultDefinition represents an endpoint definition.
+type defaultDefinition struct {
 	url     string
 	method  string
-	stack   types.Stack
-	handler http.HandlerFunc // Optional handler for the endpoint.
+	stack   middlewaretypes.Stack
+	handler http.HandlerFunc
 }
+
+var _ endpointtypes.Definition = (*defaultDefinition)(nil)
 
 // NewDefinition creates a new endpoint definition.
 //
 // Parameters:
-//   - url: The URL of the endpoint.
+//   - url: The URL of the endpoint. Defaults to "/" if empty.
 //   - method: The HTTP method of the endpoint.
 //   - stack: The middleware stack for the endpoint.
-//   - handler: The optional handler for the endpoint.
+//   - handler: The handler for the endpoint.
 //
 // Returns:
 //   - *defaultDefinition: A new defaultDefinition instance.
 func NewDefinition(
 	url string,
 	method string,
-	stack types.Stack,
+	stack middlewaretypes.Stack,
 	handler http.HandlerFunc,
-) *Definition {
-	return &Definition{
-		url:     url,
+) *defaultDefinition {
+	return &defaultDefinition{
+		url:     defaultURL(url),
 		method:  method,
 		stack:   stack,
 		handler: handler,
@@ -42,7 +46,7 @@ func NewDefinition(
 //
 // Returns:
 //   - string: The URL of the endpoint.
-func (d *Definition) URL() string {
+func (d *defaultDefinition) URL() string {
 	return d.url
 }
 
@@ -50,7 +54,7 @@ func (d *Definition) URL() string {
 //
 // Returns:
 //   - string: The HTTP method of the endpoint.
-func (d *Definition) Method() string {
+func (d *defaultDefinition) Method() string {
 	return d.method
 }
 
@@ -58,7 +62,7 @@ func (d *Definition) Method() string {
 //
 // Returns:
 //   - middleware.Stack: The middleware stack of the endpoint.
-func (d *Definition) Stack() types.Stack {
+func (d *defaultDefinition) Stack() middlewaretypes.Stack {
 	return d.stack
 }
 
@@ -66,108 +70,115 @@ func (d *Definition) Stack() types.Stack {
 //
 // Returns:
 //   - http.HandlerFunc: The handler of the endpoint.
-func (d *Definition) Handler() http.HandlerFunc {
+func (d *defaultDefinition) Handler() http.HandlerFunc {
 	return d.handler
 }
 
-// Option is a function that modifies a definition.
-type Option func(*Definition)
-
-// Clone creates a deep copy of an endpoint definition with options.
+// Clone creates a deep copy of an endpoint definition and returns the cloned
+// endpoint definition.
 //
 // Parameters:
 //   - opts: Options to apply to the cloned definition.
 //
 // Returns:
 //   - *Definition: the cloned definition.
-func (d *Definition) Clone(opts ...Option) *Definition {
+func (d *defaultDefinition) Clone() *defaultDefinition {
 	cloned := *d
 	if d.stack != nil {
 		cloned.stack = d.stack.Clone()
 	}
-	for _, opt := range opts {
-		if opt == nil {
-			continue
-		}
-		opt(&cloned)
-	}
 	return &cloned
 }
 
-// WithURL returns an option that sets the URL of the endpoint. If the URL is
-// empty, it will be set to "/"
+// WithURL sets the URL of the endpoint. Defaults to "/" if empty. It returns a
+// new endpoint definition.
 //
 // Parameters:
 //   - url: The URL of the endpoint.
 //
 // Returns:
-//   - func(*Definition): a function that sets the URL of the endpoint.
-func WithURL(url string) Option {
-	return func(e *Definition) {
-		if url == "" {
-			e.url = "/"
-		} else {
-			e.url = url
-		}
-	}
+//   - *defaultDefinition: A new defaultDefinition instance.
+func (d *defaultDefinition) WithURL(url string) *defaultDefinition {
+	new := *d
+	new.url = defaultURL(url)
+	return &new
 }
 
-// WithMethod returns an option that sets the method of the endpoint.
+// WithMethod sets the method of the endpoint. It returns a new endpoint
+// definition.
 //
 // Parameters:
 //   - method: The method of the endpoint.
 //
 // Returns:
-//   - func(*Definition): a function that sets the method of the endpoint.
-func WithMethod(method string) Option {
-	return func(e *Definition) {
-		e.method = method
-	}
+//   - *defaultDefinition: A new defaultDefinition instance.
+func (d *defaultDefinition) WithMethod(method string) *defaultDefinition {
+	new := *d
+	new.method = method
+	return &new
 }
 
-// WithMiddlewareStack return an option that sets the middleware stack.
+// WithHandler sets the handler of the endpoint. It returns a new endpoint
+// definition.
+//
+// Parameters:
+//   - handler: The handler of the endpoint.
+//
+// Returns:
+//   - *defaultDefinition: A new defaultDefinition instance.
+func (d *defaultDefinition) WithHandler(
+	handler http.HandlerFunc,
+) *defaultDefinition {
+	new := *d
+	new.handler = handler
+	return &new
+}
+
+// WithMiddlewareStack sets the middleware stack of the endpoint. It returns a
+// new endpoint definition.
 //
 // Parameters:
 //   - stack: The middleware stack.
 //
 // Returns:
-//   - func(*Definition): a function that sets the middleware stack.
-func WithMiddlewareStack(stack types.Stack) Option {
-	return func(e *Definition) {
-		e.stack = stack
+//   - *defaultDefinition: A new defaultDefinition instance.
+func (d *defaultDefinition) WithMiddlewareStack(
+	stack middlewaretypes.Stack,
+) *defaultDefinition {
+	new := *d
+	new.stack = stack
+	return &new
+}
+
+// defaultDefinitions is a new list of endpoint definitions.
+type defaultDefinitions struct {
+	definitions []endpointtypes.Definition
+}
+
+// defaultDefinition implements the Definitions interface.
+var _ endpointtypes.Definitions = (*defaultDefinitions)(nil)
+
+func NewDefinitions(
+	definitions ...endpointtypes.Definition,
+) *defaultDefinitions {
+	return &defaultDefinitions{
+		definitions: definitions,
 	}
 }
 
-// WithMiddlewareWrappersFunc returns an option that sets the middleware stack.
-//
-// Parameters:
-//   - middlewareWrappersFunc: A function that returns the middleware stack.
-//
-// Returns:
-//   - func(*Definition): a function that sets the middleware stack.
-func WithMiddlewareWrappersFunc(
-	middlewareWrappersFunc func(
-		definition *Definition,
-	) types.Stack,
-) Option {
-	return func(e *Definition) {
-		wrappers := middlewareWrappersFunc(e)
-		e.stack = wrappers
-	}
-}
-
-// Definitions is a new list of endpoint definitions.
-type Definitions []Definition
-
-// With returns an option that sets the endpoint definitions.
+// Add adds new endpoint definitions to the list of endpoint definitions.
 //
 // Parameters:
 //   - definitions: The new endpoint definitions.
 //
 // Returns:
-//   - func(*Definition): a function that sets the endpoint definitions.
-func (d Definitions) With(definitions ...Definition) Definitions {
-	return append(d, definitions...)
+//   - *Definitions: A new list of endpoint definitions.
+func (d defaultDefinitions) Add(
+	definitions ...endpointtypes.Definition,
+) *defaultDefinitions {
+	defs := append([]endpointtypes.Definition{}, d.definitions...)
+	defs = append(defs, definitions...)
+	return NewDefinitions(defs...)
 }
 
 // ToEndpoints converts a list of endpoint definitions to a list of API
@@ -175,10 +186,10 @@ func (d Definitions) With(definitions ...Definition) Definitions {
 //
 // Returns:
 //   - []api.Endpoint: a list of API endpoints.
-func (d Definitions) ToEndpoints() []Endpoint {
-	endpoints := []Endpoint{}
-	for _, definition := range d {
-		middlewares := types.Middlewares{}
+func (d defaultDefinitions) ToEndpoints() []endpointtypes.Endpoint {
+	endpoints := []endpointtypes.Endpoint{}
+	for _, definition := range d.definitions {
+		middlewares := []middlewaretypes.Middleware{}
 		if definition.Stack() != nil {
 			for _, mw := range definition.Stack().Wrappers() {
 				middlewares = append(middlewares, mw.Middleware())
@@ -186,9 +197,19 @@ func (d Definitions) ToEndpoints() []Endpoint {
 		}
 		endpoints = append(
 			endpoints,
-			*NewEndpoint(definition.URL(), definition.Method(), middlewares).
+			NewEndpoint(definition.URL(), definition.Method()).
+				WithMiddlewares(middleware.NewMiddlewares(middlewares...)).
 				WithHandler(definition.Handler()),
 		)
 	}
 	return endpoints
+}
+
+// defaultURL returns the default URL if the URL is empty.
+func defaultURL(url string) string {
+	if url == "" {
+		return "/"
+	} else {
+		return url
+	}
 }

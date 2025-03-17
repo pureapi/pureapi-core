@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	databasetypes "github.com/pureapi/pureapi-core/database/types"
+	"github.com/pureapi/pureapi-core/database/types"
 )
 
 // Exec prepares and executes a query with parameters, returning the Result.
@@ -21,11 +21,11 @@ import (
 //   - error: An error if the query fails.
 func Exec(
 	ctx context.Context,
-	preparer databasetypes.Preparer,
+	preparer types.Preparer,
 	query string,
 	parameters []any,
-	errorChecker databasetypes.ErrorChecker,
-) (databasetypes.Result, error) {
+	errorChecker types.ErrorChecker,
+) (types.Result, error) {
 	if preparer == nil {
 		return nil, fmt.Errorf("Exec: preparer is nil")
 	}
@@ -55,11 +55,11 @@ func Exec(
 //   - error: An error if the query fails.
 func Query(
 	ctx context.Context,
-	preparer databasetypes.Preparer,
+	preparer types.Preparer,
 	query string,
 	parameters []any,
-	errorChecker databasetypes.ErrorChecker,
-) (databasetypes.Rows, databasetypes.Stmt, error) {
+	errorChecker types.ErrorChecker,
+) (types.Rows, types.Stmt, error) {
 	if preparer == nil {
 		return nil, nil, fmt.Errorf("Query: preparer is nil")
 	}
@@ -87,11 +87,11 @@ func Query(
 //   - error: An error if the query fails.
 func ExecRaw(
 	ctx context.Context,
-	db databasetypes.DB,
+	db types.DB,
 	query string,
 	parameters []any,
-	errorChecker databasetypes.ErrorChecker,
-) (databasetypes.Result, error) {
+	errorChecker types.ErrorChecker,
+) (types.Result, error) {
 	if db == nil {
 		return nil, fmt.Errorf("ExecRaw: db is nil")
 	}
@@ -120,11 +120,11 @@ func ExecRaw(
 //   - error: An error if the query fails.
 func QueryRaw(
 	ctx context.Context,
-	db databasetypes.DB,
+	db types.DB,
 	query string,
 	parameters []any,
-	errorChecker databasetypes.ErrorChecker,
-) (databasetypes.Rows, error) {
+	errorChecker types.ErrorChecker,
+) (types.Rows, error) {
 	if db == nil {
 		return nil, fmt.Errorf("QueryRaw: db is nil")
 	}
@@ -156,10 +156,10 @@ func QueryRaw(
 //   - error: An error if the query or scan fails.
 func QuerySingleValue[T any](
 	ctx context.Context,
-	preparer databasetypes.Preparer,
+	preparer types.Preparer,
 	query string,
 	parameters []any,
-	errorChecker databasetypes.ErrorChecker,
+	errorChecker types.ErrorChecker,
 	factoryFn func() T,
 ) (T, error) {
 	var zero T
@@ -200,12 +200,12 @@ func QuerySingleValue[T any](
 // Returns:
 //   - T: The entity scanned from the query.
 //   - error: An error if the query fails.
-func QuerySingleEntity[Entity databasetypes.Getter](
+func QuerySingleEntity[Entity types.Getter](
 	ctx context.Context,
-	preparer databasetypes.Preparer,
+	preparer types.Preparer,
 	query string,
 	parameters []any,
-	errorChecker databasetypes.ErrorChecker,
+	errorChecker types.ErrorChecker,
 	factoryFn func() Entity,
 ) (Entity, error) {
 	var zero Entity
@@ -244,12 +244,12 @@ func QuerySingleEntity[Entity databasetypes.Getter](
 // Returns:
 //   - []T: A slice of entities scanned from the query.
 //   - error: An error if the query fails.
-func QueryEntities[Entity databasetypes.Getter](
+func QueryEntities[Entity types.Getter](
 	ctx context.Context,
-	preparer databasetypes.Preparer,
+	preparer types.Preparer,
 	query string,
 	parameters []any,
-	errorChecker databasetypes.ErrorChecker,
+	errorChecker types.ErrorChecker,
 	factoryFn func() Entity,
 ) ([]Entity, error) {
 	rows, stmt, err := Query(ctx, preparer, query, parameters, errorChecker)
@@ -274,8 +274,8 @@ func QueryEntities[Entity databasetypes.Getter](
 // Returns:
 //   - T: The entity scanned from the row.
 //   - error: An error if the scan fails.
-func RowToEntity[T databasetypes.Getter](
-	_ context.Context, row databasetypes.Row, factoryFn func() T,
+func RowToEntity[T types.Getter](
+	_ context.Context, row types.Row, factoryFn func() T,
 ) (T, error) {
 	var zero T
 	entity := factoryFn()
@@ -302,7 +302,7 @@ func RowToEntity[T databasetypes.Getter](
 //   - T: The entity scanned from the row.
 //   - error: An error if scanning fails.
 func RowToAny[T any](
-	_ context.Context, row databasetypes.Row, factoryFn func() T,
+	_ context.Context, row types.Row, factoryFn func() T,
 ) (T, error) {
 	var zero T
 	entity := factoryFn()
@@ -329,7 +329,7 @@ func RowToAny[T any](
 //   - []T: A slice of entities scanned from the rows.
 //   - error: An error if scanning any row fails.
 func RowsToAny[T any](
-	ctx context.Context, rows databasetypes.Rows, factoryFn func() T,
+	ctx context.Context, rows types.Rows, factoryFn func() T,
 ) ([]T, error) {
 	var results []T
 	for rows.Next() {
@@ -355,8 +355,8 @@ func RowsToAny[T any](
 // Returns:
 //   - []T: A slice of entities scanned from the rows.
 //   - error: An error if the scan fails.
-func RowsToEntities[T databasetypes.Getter](
-	_ context.Context, rows databasetypes.Rows, factoryFn func() T,
+func RowsToEntities[T types.Getter](
+	_ context.Context, rows types.Rows, factoryFn func() T,
 ) ([]T, error) {
 	results := []T{}
 	for rows.Next() {
@@ -375,10 +375,10 @@ func RowsToEntities[T databasetypes.Getter](
 // doExec executes a query with parameters.
 func doExec(
 	_ context.Context,
-	preparer databasetypes.Preparer,
+	preparer types.Preparer,
 	query string,
 	parameters []any,
-) (databasetypes.Result, error) {
+) (types.Result, error) {
 	stmt, err := preparer.Prepare(query)
 	if err != nil {
 		return nil, err
@@ -393,8 +393,8 @@ func doExec(
 
 // doExecRaw executes a query directly on the DB without preparation.
 func doExecRaw(
-	_ context.Context, db databasetypes.DB, query string, parameters []any,
-) (databasetypes.Result, error) {
+	_ context.Context, db types.DB, query string, parameters []any,
+) (types.Result, error) {
 	result, err := db.Exec(query, parameters...)
 	if err != nil {
 		return nil, err
@@ -405,10 +405,10 @@ func doExecRaw(
 // doQuery executes a query with parameters.
 func doQuery(
 	_ context.Context,
-	preparer databasetypes.Preparer,
+	preparer types.Preparer,
 	query string,
 	parameters []any,
-) (databasetypes.Rows, databasetypes.Stmt, error) {
+) (types.Rows, types.Stmt, error) {
 	stmt, err := preparer.Prepare(query)
 	if err != nil {
 		return nil, nil, err
@@ -429,8 +429,8 @@ func doQuery(
 
 // doQueryRaw executes a query directly on the DB without preparation.
 func doQueryRaw(
-	_ context.Context, db databasetypes.DB, query string, parameters []any,
-) (databasetypes.Rows, error) {
+	_ context.Context, db types.DB, query string, parameters []any,
+) (types.Rows, error) {
 	rows, err := db.Query(query, parameters...)
 	if err != nil {
 		return nil, err

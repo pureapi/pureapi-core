@@ -33,13 +33,13 @@ func TestBuild(t *testing.T) {
 	w1 := NewWrapper("mw1", dummyMiddleware("X-Test", "value"))
 	stack := NewStack(w1)
 	mws := stack.Middlewares()
-	require.Len(t, mws, 1)
+	require.Len(t, mws.(*defaultMiddlewares).middlewares, 1)
 	// Test middleware behavior: create a handler that writes "ok", wrap it,
 	// and verify that the header "X-Test" is added.
 	final := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})
-	wrapped := Chain(final, mws)
+	wrapped := mws.Chain(final)
 	req := httptest.NewRequest("GET", "/test", nil)
 	rec := httptest.NewRecorder()
 	wrapped.ServeHTTP(rec, req)

@@ -8,8 +8,8 @@ import (
 // metadata. ID can be used to identify the middleware type (e.g. for reordering
 // or documentation). Data can carry any type of additional information.
 type defaultWrapper struct {
-	middleware types.Middleware
 	id         string
+	middleware types.Middleware
 	data       any
 }
 
@@ -21,41 +21,32 @@ var _ types.Wrapper = (*defaultWrapper)(nil)
 // Parameters:
 //   - m: The middleware to wrap.
 //   - id: The ID of the wrapper.
-//   - options: Optional configuration functions.
 //
 // Returns:
 //   - *defaultWrapper: A new defaultWrapper instance.
 func NewWrapper(
-	id string,
-	middleware types.Middleware,
-	opts ...Option,
+	id string, middleware types.Middleware,
 ) *defaultWrapper {
-	w := &defaultWrapper{
-		middleware: middleware,
+	defaultWrapper := &defaultWrapper{
 		id:         id,
+		middleware: middleware,
+		data:       nil,
 	}
-	for _, opt := range opts {
-		if opt == nil {
-			continue
-		}
-		opt(w)
-	}
-	return w
+	return defaultWrapper
 }
 
-type Option func(*defaultWrapper)
-
-// DataOption returns a function that sets the data for the wrapper.
+// WithData returns a new defaultWrapper with the given data and returns a new
+// defaultWrapper.
 //
 // Parameters:
-//   - data: The data to set.
+//   - data: The data to attach to the wrapper.
 //
 // Returns:
-//   - func(*defaultWrapper): A function that sets the data for the wrapper.
-func DataOption(data any) Option {
-	return func(w *defaultWrapper) {
-		w.data = data
-	}
+//   - *defaultWrapper: A new defaultWrapper instance.
+func (m *defaultWrapper) WithData(data any) *defaultWrapper {
+	new := *m
+	new.data = data
+	return &new
 }
 
 // ID returns the ID of the wrapper.

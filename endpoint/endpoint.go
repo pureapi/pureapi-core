@@ -3,18 +3,23 @@ package endpoint
 import (
 	"net/http"
 
-	"github.com/pureapi/pureapi-core/middleware/types"
+	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
+	"github.com/pureapi/pureapi-core/middleware"
+	middlewaretypes "github.com/pureapi/pureapi-core/middleware/types"
 )
 
-// Endpoint represents an API endpoint with middlewares.
-type Endpoint struct {
-	URL         string
-	Method      string
-	Middlewares types.Middlewares
-	Handler     http.HandlerFunc // Optional handler for the endpoint.
+// defaultEndpoint represents an API endpoint with middlewares.
+type defaultEndpoint struct {
+	url         string
+	method      string
+	middlewares middlewaretypes.Middlewares
+	handler     http.HandlerFunc // Optional handler for the endpoint.
 }
 
-// NewEndpoint creates a new Endpoint with the given details.
+// defaultEndpoint implements the Endpoint interface.
+var _ endpointtypes.Endpoint = (*defaultEndpoint)(nil)
+
+// NewEndpoint creates a new defaultEndpoint with the given details.
 //
 // Parameters:
 //   - url: The URL of the endpoint.
@@ -22,15 +27,66 @@ type Endpoint struct {
 //   - middlewares: The middlewares to apply to the endpoint.
 //
 // Returns:
-//   - Endpoint: A new Endpoint instance.
-func NewEndpoint(
-	url string, method string, middlewares types.Middlewares,
-) *Endpoint {
-	return &Endpoint{
-		URL:         url,
-		Method:      method,
-		Middlewares: middlewares,
+//   - *defaultEndpoint: A new defaultEndpoint instance.
+func NewEndpoint(url string, method string) *defaultEndpoint {
+	return &defaultEndpoint{
+		url:         url,
+		method:      method,
+		middlewares: nil,
+		handler:     nil,
 	}
+}
+
+// URL returns the URL of the endpoint.
+//
+// Returns:
+//   - string: The URL of the endpoint.
+func (e *defaultEndpoint) URL() string {
+	return e.url
+}
+
+// Method returns the HTTP method of the endpoint.
+//
+// Returns:
+//   - string: The HTTP method of the endpoint.
+func (e *defaultEndpoint) Method() string {
+	return e.method
+}
+
+// Middlewares returns the middlewares of the endpoint. If no middlewares are
+// set, it returns an empty middleware.Middlewares instance.
+//
+// Returns:
+//   - middleware.Middlewares: The middlewares of the endpoint.
+func (e *defaultEndpoint) Middlewares() middlewaretypes.Middlewares {
+	if e.middlewares == nil {
+		return middleware.NewMiddlewares()
+	}
+	return e.middlewares
+}
+
+// Handler returns the handler of the endpoint.
+//
+// Returns:
+//   - http.HandlerFunc: The handler of the endpoint.
+func (e *defaultEndpoint) Handler() http.HandlerFunc {
+	return e.handler
+}
+
+// WithMiddlewares sets the middlewares for the endpoint. It returns a new
+// endpoint.
+//
+// Parameters:
+//   - middlewares: The middlewares to apply to the endpoint.
+//
+// Returns:
+//   - Endpoint: A new endpoint.
+func (e *defaultEndpoint) WithMiddlewares(
+	middlewares middlewaretypes.Middlewares,
+) *defaultEndpoint {
+	new := *e
+	new.middlewares = middlewares
+	return &new
 }
 
 // WithHandler sets the handler for the endpoint. It returns a new endpoint.
@@ -40,8 +96,10 @@ func NewEndpoint(
 //
 // Returns:
 //   - Endpoint: A new endpoint.
-func (e *Endpoint) WithHandler(handler http.HandlerFunc) *Endpoint {
-	newEndpoint := *e
-	newEndpoint.Handler = handler
-	return &newEndpoint
+func (e *defaultEndpoint) WithHandler(
+	handler http.HandlerFunc,
+) *defaultEndpoint {
+	new := *e
+	new.handler = handler
+	return &new
 }

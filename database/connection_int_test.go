@@ -21,6 +21,11 @@ type ConnectionIntTestSuite struct {
 	cfg database.ConnectConfig
 }
 
+// TestConnectionIntTestSuite runs the test suite.
+func TestConnectionIntTestSuite(t *testing.T) {
+	suite.Run(t, new(ConnectionIntTestSuite))
+}
+
 // SetupTest initializes the test by creating an in-memory SQLite3 database.
 func (s *ConnectionIntTestSuite) SetupTest() {
 	s.cfg = database.ConnectConfig{
@@ -95,8 +100,4 @@ func (s *ConnectionIntTestSuite) Test_ConnectionConfig() {
 
 	err := s.db.Ping()
 	require.NoError(s.T(), err)
-}
-
-func TestConnectionIntTestSuite(t *testing.T) {
-	suite.Run(t, new(ConnectionIntTestSuite))
 }

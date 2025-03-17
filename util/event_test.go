@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// TestRegisterAndEmit tests registering a listener and emitting an event.
 func TestRegisterAndEmit(t *testing.T) {
 	emitter := NewEventEmitter()
 	ch := make(chan *types.Event, 1)
@@ -30,6 +31,8 @@ func TestRegisterAndEmit(t *testing.T) {
 	}
 }
 
+// TestMultipleListeners tests registering and emitting multiple listeners for
+// the same event.
 func TestMultipleListeners(t *testing.T) {
 	emitter := NewEventEmitter()
 	var wg sync.WaitGroup
@@ -40,12 +43,15 @@ func TestMultipleListeners(t *testing.T) {
 	// Register several listeners for the same event.
 	for i := 0; i < numListeners; i++ {
 		wg.Add(1)
-		emitter.RegisterListener("mult", func(e *types.Event) {
-			mu.Lock()
-			count++
-			mu.Unlock()
-			wg.Done()
-		})
+		emitter.RegisterListener(
+			"mult",
+			func(e *types.Event) {
+				mu.Lock()
+				count++
+				mu.Unlock()
+				wg.Done()
+			},
+		)
 	}
 
 	emitter.Emit(types.NewEvent("mult", "bar"))
@@ -64,6 +70,7 @@ func TestMultipleListeners(t *testing.T) {
 	}
 }
 
+// TestRemoveListener tests removing a listener from the eventEmitter.
 func TestRemoveListener(t *testing.T) {
 	emitter := NewEventEmitter()
 	var wg sync.WaitGroup
@@ -72,18 +79,24 @@ func TestRemoveListener(t *testing.T) {
 
 	// Register two listeners for the event "rm".
 	wg.Add(2)
-	emitter.RegisterListener("rm", func(e *types.Event) {
-		mu.Lock()
-		callCount++
-		mu.Unlock()
-		wg.Done()
-	})
-	emitter.RegisterListener("rm", func(e *types.Event) {
-		mu.Lock()
-		callCount++
-		mu.Unlock()
-		wg.Done()
-	})
+	emitter.RegisterListener(
+		"rm",
+		func(e *types.Event) {
+			mu.Lock()
+			callCount++
+			mu.Unlock()
+			wg.Done()
+		},
+	)
+	emitter.RegisterListener(
+		"rm",
+		func(e *types.Event) {
+			mu.Lock()
+			callCount++
+			mu.Unlock()
+			wg.Done()
+		},
+	)
 
 	// Since the IDs are generated internally, inspect the listeners map.
 	emitter.mu.RLock()
@@ -111,17 +124,17 @@ func TestRemoveListener(t *testing.T) {
 	// Emit event.
 	emitter.Emit(types.NewEvent("rm", "remove"))
 
-	select {
-	case <-time.After(500 * time.Millisecond):
-		// Give a little time for the callback.
-	}
+	<-time.After(500 * time.Millisecond)
 
 	mu.Lock()
 	finalCount := callCount
 	mu.Unlock()
-	assert.Equal(t, 1, finalCount, "only one listener should be invoked after removal")
+	assert.Equal(
+		t, 1, finalCount, "only one listener should be invoked after removal",
+	)
 }
 
+// TestEmitNoListeners tests emitting an event with no listeners.
 func TestEmitNoListeners(t *testing.T) {
 	emitter := NewEventEmitter()
 	// Emit an event for which no listener is registered. Should not panic.
@@ -130,19 +143,23 @@ func TestEmitNoListeners(t *testing.T) {
 	})
 }
 
+// TestWithTimeoutOption tests applying a timeout option to the eventEmitter.
 func TestWithTimeoutOption(t *testing.T) {
 	timeoutDuration := 1000 * time.Millisecond
-	emitter := NewEventEmitter(WithTimeout(timeoutDuration))
+	emitter := NewEventEmitter().WithTimeout(&timeoutDuration)
 	// Apply the timeout option.
 	require.NotNil(t, emitter.timeout)
 	assert.Equal(t, timeoutDuration, *emitter.timeout)
 
 	ch := make(chan *types.Event, 1)
 	// Register a listener that simulates some work.
-	emitter.RegisterListener("timeout", func(e *types.Event) {
-		time.Sleep(2000 * time.Millisecond)
-		ch <- e
-	})
+	emitter.RegisterListener(
+		"timeout",
+		func(e *types.Event) {
+			time.Sleep(2000 * time.Millisecond)
+			ch <- e
+		},
+	)
 	emitter.Emit(types.NewEvent("timeout", "with timeout"))
 
 	select {
@@ -153,6 +170,7 @@ func TestWithTimeoutOption(t *testing.T) {
 	}
 }
 
+// TestConcurrentEmit tests emitting events concurrently.
 func TestConcurrentEmit(t *testing.T) {
 	emitter := NewEventEmitter()
 	var wg sync.WaitGroup
@@ -163,12 +181,15 @@ func TestConcurrentEmit(t *testing.T) {
 
 	// Register two listeners for a concurrent event.
 	for i := 0; i < numListeners; i++ {
-		emitter.RegisterListener("concurrent", func(e *types.Event) {
-			mu.Lock()
-			callCount++
-			mu.Unlock()
-			wg.Done()
-		})
+		emitter.RegisterListener(
+			"concurrent",
+			func(e *types.Event) {
+				mu.Lock()
+				callCount++
+				mu.Unlock()
+				wg.Done()
+			},
+		)
 	}
 
 	totalCalls := numListeners * numEmitters

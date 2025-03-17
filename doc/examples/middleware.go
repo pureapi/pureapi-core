@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/pureapi/pureapi-core/endpoint"
+	"github.com/pureapi/pureapi-core/endpoint/types"
 	"github.com/pureapi/pureapi-core/middleware"
 	"github.com/pureapi/pureapi-core/server"
 	"github.com/pureapi/pureapi-core/util"
@@ -58,23 +59,17 @@ func RunMiddleware() {
 	authStack := commonStack.Clone()
 	authStack.InsertBefore("recovery", authWrapper)
 
-	endpoints := []endpoint.Endpoint{
-		{
-			URL:         "/public",
-			Method:      http.MethodGet,
-			Middlewares: commonStack.Middlewares(),
-			Handler: func(w http.ResponseWriter, r *http.Request) {
+	endpoints := []types.Endpoint{
+		endpoint.NewEndpoint("/public", http.MethodGet).WithHandler(
+			func(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, "Hello, Public User!")
 			},
-		},
-		{
-			URL:         "/secure",
-			Method:      http.MethodGet,
-			Middlewares: authStack.Middlewares(),
-			Handler: func(w http.ResponseWriter, r *http.Request) {
+		),
+		endpoint.NewEndpoint("/secure", http.MethodGet).WithHandler(
+			func(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, "Hello, Secure User!")
 			},
-		},
+		),
 	}
 
 	instance := server.DefaultHTTPServer(handler, 8080, endpoints)

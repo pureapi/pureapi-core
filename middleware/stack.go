@@ -22,7 +22,7 @@ var _ types.Stack = (*defaultStack)(nil)
 //   - wrappers: The initial list of middleware wrappers.
 //
 // Returns:
-//   - *defaultStack: A new defaultStack.
+//   - *defaultStack: A new defaultStack instance.
 func NewStack(wrappers ...types.Wrapper) *defaultStack {
 	return &defaultStack{
 		mu:       sync.RWMutex{},
@@ -47,11 +47,11 @@ func (s *defaultStack) Wrappers() []types.Wrapper {
 func (s *defaultStack) Middlewares() types.Middlewares {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	middlewares := make(types.Middlewares, len(s.wrappers))
-	for i, wrapper := range s.wrappers {
-		middlewares[i] = wrapper.Middleware()
+	middlewares := []types.Middleware{}
+	for _, wrapper := range s.wrappers {
+		middlewares = append(middlewares, wrapper.Middleware())
 	}
-	return middlewares
+	return NewMiddlewares(middlewares...)
 }
 
 // Clone creates a deep copy of the Stack.

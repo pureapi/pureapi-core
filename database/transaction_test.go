@@ -43,7 +43,7 @@ type TransactionTestSuite struct {
 	suite.Suite
 }
 
-// TestTransactionTestSuite registers the test suite.
+// TestTransactionTestSuite runs the test suite.
 func TestTransactionTestSuite(t *testing.T) {
 	suite.Run(t, new(TransactionTestSuite))
 }

@@ -6,12 +6,12 @@ import (
 	"github.com/pureapi/pureapi-core/apierror"
 )
 
+// Handler is an interface for handling endpoints.
+type Handler[Input any] interface {
+	Handle(w http.ResponseWriter, r *http.Request)
+}
+
 // ErrorHandler handles apierror and maps them to appropriate HTTP responses.
 type ErrorHandler interface {
 	Handle(err error) (int, *apierror.APIError)
-}
-
-// EndpointHandler is an interface for handling endpoints.
-type EndpointHandler[Input any] interface {
-	Handle(w http.ResponseWriter, r *http.Request)
 }

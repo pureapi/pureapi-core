@@ -14,8 +14,10 @@ import "net/http"
 //	wrappedHandler := Apply(finalHandler, middleware1, middleware2)
 type Middleware func(http.Handler) http.Handler
 
-// Middlewares is a slice of Middleware functions.
-type Middlewares []Middleware
+// Middlewares is a collection of Middleware functions.
+type Middlewares interface {
+	Chain(h http.Handler) http.Handler
+}
 
 // Wrapper is an interface for a middleware wrapper. It encapsulates a
 // Middleware with an identifier and optional metadata.

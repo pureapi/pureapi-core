@@ -38,7 +38,7 @@ var _ ResWrap = (*defaultResWrap)(nil)
 //   - w: The original http.ResponseWriter.
 //
 // Returns:
-//   - *&defaultResWrap: A new &defaultResWrap instance.
+//   - *defaultResWrap: A new defaultResWrap instance.
 func NewResWrap(w http.ResponseWriter) *defaultResWrap {
 	return &defaultResWrap{
 		ResponseWriter: w,

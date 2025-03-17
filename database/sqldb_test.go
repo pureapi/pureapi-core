@@ -18,7 +18,7 @@ type SQLDBTestSuite struct {
 	suite.Suite
 }
 
-// TestSQLDBTestSuite registers the test suite.
+// TestSQLDBTestSuite runs the test suite.
 func TestSQLDBTestSuite(t *testing.T) {
 	suite.Run(t, new(SQLDBTestSuite))
 }

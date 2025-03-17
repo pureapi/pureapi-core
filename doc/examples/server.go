@@ -6,9 +6,10 @@ import (
 	"net/http"
 
 	"github.com/pureapi/pureapi-core/endpoint"
+	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
 	"github.com/pureapi/pureapi-core/server"
 	"github.com/pureapi/pureapi-core/util"
-	"github.com/pureapi/pureapi-core/util/types"
+	utiltypes "github.com/pureapi/pureapi-core/util/types"
 )
 
 func Server() {
@@ -16,15 +17,12 @@ func Server() {
 	emitterLogger := util.NewEmitterLogger(eventEmitter, nil)
 	handler := server.NewHandler(emitterLogger)
 
-	endpoints := []endpoint.Endpoint{
-		{
-			URL:    "/hello",
-			Method: http.MethodGet,
-			Handler: func(w http.ResponseWriter, r *http.Request) {
+	endpoints := []endpointtypes.Endpoint{
+		endpoint.NewEndpoint("/hello", http.MethodGet).WithHandler(
+			func(w http.ResponseWriter, r *http.Request) {
 				log.Println("Incoming request")
 				fmt.Fprintf(w, "Hello, PureAPI!")
-			},
-		},
+			}),
 	}
 
 	instance := server.DefaultHTTPServer(handler, 8080, endpoints)
@@ -34,18 +32,18 @@ func Server() {
 	}
 }
 
-func setupEventEmitter() types.EventEmitter {
+func setupEventEmitter() utiltypes.EventEmitter {
 	eventEmitter := util.NewEventEmitter()
 	eventEmitter.
 		RegisterListener(
 			server.EventStart,
-			func(event *types.Event) {
+			func(event *utiltypes.Event) {
 				log.Printf("Event: %s\n", event.Message)
 			},
 		).
 		RegisterListener(
 			server.EventRegisterURL,
-			func(event *types.Event) {
+			func(event *utiltypes.Event) {
 				log.Printf("Event: %s\n", event.Message)
 			},
 		)

@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"runtime/debug"
 	"strings"
+
+	"github.com/pureapi/pureapi-core/util/types"
 )
 
 // responseData is a simplified copy of the response details.
@@ -18,17 +20,23 @@ type responseData struct {
 
 // requestDumpData holds a dump of request/response info for panic logging.
 type requestDumpData struct {
-	StatusCode int `json:"status_code"`
-	Request    struct {
-		URL     string              `json:"url"`
-		Params  string              `json:"params"`
-		Headers map[string][]string `json:"headers"`
-		Body    string              `json:"body"`
-	} `json:"request"`
-	Response struct {
-		Headers map[string][]string `json:"headers"`
-		Body    string              `json:"body"`
-	} `json:"response"`
+	StatusCode int              `json:"status_code"`
+	Request    dumpDataRequest  `json:"request"`
+	Response   dumpDataResponse `json:"response"`
+}
+
+// dumpDataRequest is a simplified copy of the request details.
+type dumpDataRequest struct {
+	URL     string              `json:"url"`
+	Params  string              `json:"params"`
+	Headers map[string][]string `json:"headers"`
+	Body    string              `json:"body"`
+}
+
+// dumpDataResponse is a simplified copy of the response details.
+type dumpDataResponse struct {
+	Headers map[string][]string `json:"headers"`
+	Body    string              `json:"body"`
 }
 
 // panicData holds the data that will be logged when a panic occurs.
@@ -42,37 +50,38 @@ type PanicHandler interface {
 	HandlePanic(w http.ResponseWriter, r *http.Request, err any)
 }
 
-// defaultPanicHandler handles panics and logs details about the cause of the panic,
-// request and response.
+// defaultPanicHandler handles panics and logs details about the cause of the
+// panic, request and response.
 type defaultPanicHandler struct {
-	panicHandlerLoggerFn func(r *http.Request) func(messages ...any)
+	ctxLoggerFactoryFn   types.CtxLoggerFactoryFn
 	maxDumpPartSize      int64
 	getResponseWrapperFn func(*http.Request) ResWrap
 }
 
-// NewPanicHandler returns a new PanicHandler instance.
+// NewPanicHandler returns a new defaultPanicHandler instance.
 //
 // Parameters:
-//   - panicHandlerLoggerFn: A function that returns a logger for panic details.
+//   - ctxLoggerFactoryFn: A function that returns a logger for panic details.
 //   - maxDumpPartSize: Maximum size of each panic dump part in bytes.
 //   - getResponseWrapperFn: A function that returns the response wrapper.
 //
 // Returns:
 //   - *defaultPanicHandler: A new defaultPanicHandler instance.
 func NewPanicHandler(
-	panicHandlerLoggerFn func(r *http.Request) func(messages ...any),
+	ctxLoggerFactoryFn types.CtxLoggerFactoryFn,
 	maxDumpPartSize int64,
 	getResponseWrapperFn func(*http.Request) ResWrap,
 ) *defaultPanicHandler {
 	return &defaultPanicHandler{
-		panicHandlerLoggerFn: panicHandlerLoggerFn,
+		ctxLoggerFactoryFn:   ctxLoggerFactoryFn,
 		maxDumpPartSize:      maxDumpPartSize,
 		getResponseWrapperFn: getResponseWrapperFn,
 	}
 }
 
 // HandlePanic recovers from a panic, logs details (including a stack trace),
-// and sends an HTTP 500 response.
+// and sends an HTTP 500 response. It will truncate logged request and response
+// parts if they are too large.
 //
 // Parameters:
 //   - w: The http.ResponseWriter.
@@ -97,7 +106,7 @@ func (p *defaultPanicHandler) HandlePanic(
 		RequestDump: *p.createRequestDumpData(rd, r, p.maxDumpPartSize),
 		StackTrace:  strings.Split(stack, "\n"),
 	}
-	p.panicHandlerLoggerFn(r)("Panic", pd)
+	p.ctxLoggerFactoryFn(r.Context()).Errorf("Panic", pd)
 	http.Error(
 		w,
 		http.StatusText(http.StatusInternalServerError),

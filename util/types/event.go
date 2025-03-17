@@ -18,7 +18,7 @@ type Event struct {
 //   - data: The optional data of the event.
 //
 // Returns:
-//   - *Event: A new event.
+//   - *Event: A new Event instance.
 func NewEvent(eventType EventType, message string, data ...any) *Event {
 	return &Event{
 		Type:    eventType,

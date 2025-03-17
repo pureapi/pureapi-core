@@ -28,7 +28,7 @@ type SQLDBIntTestSuite struct {
 	db types.DB
 }
 
-// TestSQLDBIntTestSuite registers the test suite.
+// TestSQLDBIntTestSuite runs the test suite.
 func TestSQLDBIntTestSuite(t *testing.T) {
 	suite.Run(t, new(SQLDBIntTestSuite))
 }

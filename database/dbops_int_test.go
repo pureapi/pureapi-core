@@ -28,14 +28,14 @@ func (te *TestEntity) ScanRow(row types.Row) error {
 	return row.Scan(&te.ID, &te.Name)
 }
 
-// DBOpsIntTestSuite defines a suite for dbops-related integration tests.
+// DBOpsIntTestSuite defines the suite for dbops-related integration tests.
 type DBOpsIntTestSuite struct {
 	suite.Suite
 	ctx context.Context
 	db  types.DB
 }
 
-// TestDBOpsIntTestSuite registers the test suite.
+// TestDBOpsIntTestSuite runs the test suite.
 func TestDBOpsIntTestSuite(t *testing.T) {
 	suite.Run(t, new(DBOpsIntTestSuite))
 }

@@ -21,8 +21,8 @@ func makeMiddleware(label string, events *[]string) types.Middleware {
 	}
 }
 
-func TestApply(t *testing.T) {
-	// Define test cases with middleware labels and expected event order.
+// TestChain tests the Chain function.
+func TestChain(t *testing.T) {
 	type testCase struct {
 		name     string
 		labels   []string
@@ -62,12 +62,16 @@ func TestApply(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			var events []string
-			var mws types.Middlewares
+			var mws defaultMiddlewares
 
 			// Create middleware for each label.
+			allMiddlewares := []types.Middleware{}
 			for _, label := range tc.labels {
-				mws = append(mws, makeMiddleware(label, &events))
+				allMiddlewares = append(
+					allMiddlewares, (makeMiddleware(label, &events)),
+				)
 			}
+			mws = *NewMiddlewares(allMiddlewares...)
 
 			// Final handler that appends "final" to events.
 			final := http.HandlerFunc(
@@ -77,23 +81,51 @@ func TestApply(t *testing.T) {
 			)
 
 			// Wrap final handler with middlewares.
-			wrapped := Chain(final, mws)
+			wrapped := mws.Chain(final)
 			req := httptest.NewRequest("GET", "/", nil)
 			rr := httptest.NewRecorder()
 			wrapped.ServeHTTP(rr, req)
 
 			assert.Equal(
 				t, len(events), len(tc.expected),
-				"expected %d events, got %d",
-				len(tc.expected), len(events),
+				"expected %d events, got %d", len(tc.expected), len(events),
 			)
 			for i, exp := range tc.expected {
 				assert.Equal(
 					t, events[i], exp,
-					"at index %d, expected %q, got %q",
-					i, exp, events[i],
+					"at index %d, expected %q, got %q", i, exp, events[i],
 				)
 			}
 		})
 	}
+}
+
+// TestAdd tests that the Add function creates a new instance
+// combining the original and added middlewares, while leaving the
+// original instance unchanged.
+func TestAddx(t *testing.T) {
+	var events []string
+
+	// Create an original middleware instance with one middleware.
+	mwOriginal := NewMiddlewares(makeMiddleware("m1", &events))
+	// Create a new middleware to add.
+	additionalMiddleware := makeMiddleware("m2", &events)
+
+	// Create a new instance by adding the additional middleware.
+	mwNew := mwOriginal.Add(additionalMiddleware)
+
+	// Final handler that appends "final" to the shared events.
+	final := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		events = append(events, "final")
+	})
+
+	// Wrap final handler with the new middleware chain.
+	wrapped := mwNew.Chain(final)
+	req := httptest.NewRequest("GET", "/", nil)
+	rr := httptest.NewRecorder()
+	wrapped.ServeHTTP(rr, req)
+
+	expected := []string{"m1-pre", "m2-pre", "final", "m2-post", "m1-post"}
+	assert.Equal(t, expected, events,
+		"Expected chain to be %v, but got %v", expected, events)
 }

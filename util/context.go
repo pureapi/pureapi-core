@@ -2,6 +2,7 @@ package util
 
 import (
 	"context"
+	"fmt"
 	"sync"
 )
 
@@ -24,11 +25,18 @@ type contextData struct {
 	data sync.Map
 }
 
+// newContextData returns a new empty contextData map.
+func newContextData() *contextData {
+	return &contextData{
+		data: sync.Map{},
+	}
+}
+
 // NewDataKey safely increments and returns the next value of base.
 // It is used to create a unique key for storing custom context data.
 //
 // Returns:
-//   - The next data key value.
+//   - DataKey: The next data key value.
 func NewDataKey() DataKey {
 	lock.Lock()
 	defer lock.Unlock()
@@ -44,7 +52,7 @@ func NewDataKey() DataKey {
 // Returns:
 //   - A new context with an initialized custom data map.
 func NewContext(fromCtx context.Context) context.Context {
-	return context.WithValue(fromCtx, mainDataKey, &contextData{})
+	return context.WithValue(fromCtx, mainDataKey, newContextData())
 }
 
 // GetContextValue tries to retrieve a value from the custom data of the context
@@ -78,8 +86,8 @@ func GetContextValue[T any](ctx context.Context, key any, returnOnNull T) T {
 }
 
 // SetContextValue sets a value in the custom data of the context for the
-// provided key. It panics if the key is nil or if the custom context is not
-// set.
+// provided key. It returns an error if the key is nil or if the custom context
+// is not set.
 //
 // Parameters:
 //   - ctx: The context in which to set the value.
@@ -88,16 +96,21 @@ func GetContextValue[T any](ctx context.Context, key any, returnOnNull T) T {
 //
 // Returns:
 //   - The updated context.
-func SetContextValue(ctx context.Context, key any, data any) context.Context {
+//   - An error if the key is nil or if the custom context is not set.
+func SetContextValue(
+	ctx context.Context, key any, data any,
+) (context.Context, error) {
 	if key == nil {
-		panic("set context value: key cannot be nil")
+		return nil, fmt.Errorf("SetContextValue: key cannot be nil")
 	}
 	cd, ok := getContextData(ctx)
 	if !ok {
-		panic("set context value: no custom context set in request")
+		return nil, fmt.Errorf(
+			"SetContextValue: no custom context set in request",
+		)
 	}
 	cd.data.Store(key, data)
-	return ctx
+	return ctx, nil
 }
 
 // getContextData tries to retrieve the custom data from the context.
