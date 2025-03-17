@@ -9,8 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// dummyStack is a minimal implementation of types.Stack
-// used for testing.
+// dummyStack is a minimal implementation of types.Stack.
 type dummyStack struct {
 	id string
 }
