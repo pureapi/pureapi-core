@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/pureapi/pureapi-core/middleware"
+	"github.com/pureapi/pureapi-core/middleware/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,7 +22,7 @@ func TestNewEndpoint(t *testing.T) {
 		name        string
 		url         string
 		method      string
-		middlewares middleware.Middlewares
+		middlewares types.Middlewares
 	}{
 		{
 			name:        "Empty values",
@@ -34,13 +34,13 @@ func TestNewEndpoint(t *testing.T) {
 			name:        "Single middleware",
 			url:         "/test",
 			method:      "GET",
-			middlewares: middleware.Middlewares{dummyMiddleware},
+			middlewares: types.Middlewares{dummyMiddleware},
 		},
 		{
 			name:   "Multiple middlewares",
 			url:    "/api",
 			method: "POST",
-			middlewares: middleware.Middlewares{
+			middlewares: types.Middlewares{
 				dummyMiddleware, dummyMiddleware,
 			},
 		},

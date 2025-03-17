@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/pureapi/pureapi-core/endpoint"
+	"github.com/pureapi/pureapi-core/middleware"
 	"github.com/pureapi/pureapi-core/server"
-	"github.com/pureapi/pureapi-core/stack"
 	"github.com/pureapi/pureapi-core/util"
 )
 
@@ -50,11 +50,11 @@ func RunMiddleware() {
 	emitterLogger := util.NewEmitterLogger(eventEmitter, nil)
 	handler := server.NewHandler(emitterLogger)
 
-	loggingWrapper := stack.NewWrapper("logging", LoggingMiddleware)
-	recoveryWrapper := stack.NewWrapper("recovery", RecoveryMiddleware)
-	commonStack := stack.NewStack(loggingWrapper, recoveryWrapper)
+	loggingWrapper := middleware.NewWrapper("logging", LoggingMiddleware)
+	recoveryWrapper := middleware.NewWrapper("recovery", RecoveryMiddleware)
+	commonStack := middleware.NewStack(loggingWrapper, recoveryWrapper)
 
-	authWrapper := stack.NewWrapper("auth", AuthMiddleware)
+	authWrapper := middleware.NewWrapper("auth", AuthMiddleware)
 	authStack := commonStack.Clone()
 	authStack.InsertBefore("recovery", authWrapper)
 

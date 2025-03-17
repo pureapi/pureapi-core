@@ -5,12 +5,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/pureapi/pureapi-core/middleware/types"
 	"github.com/stretchr/testify/assert"
 )
 
 // makeMiddleware returns a Middleware that appends pre and post markers
 // to the events slice.
-func makeMiddleware(label string, events *[]string) Middleware {
+func makeMiddleware(label string, events *[]string) types.Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			*events = append(*events, label+"-pre")
@@ -61,7 +62,7 @@ func TestApply(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			var events []string
-			var mws Middlewares
+			var mws types.Middlewares
 
 			// Create middleware for each label.
 			for _, label := range tc.labels {
@@ -76,7 +77,7 @@ func TestApply(t *testing.T) {
 			)
 
 			// Wrap final handler with middlewares.
-			wrapped := mws.Chain(final)
+			wrapped := Chain(final, mws)
 			req := httptest.NewRequest("GET", "/", nil)
 			rr := httptest.NewRecorder()
 			wrapped.ServeHTTP(rr, req)

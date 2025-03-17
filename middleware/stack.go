@@ -1,14 +1,13 @@
-package stack
+package middleware
 
 import (
 	"sync"
 
-	"github.com/pureapi/pureapi-core/middleware"
-	"github.com/pureapi/pureapi-core/stack/types"
+	"github.com/pureapi/pureapi-core/middleware/types"
 )
 
-// defaultStack manages a list of middleware wrappers with concurrency safety for
-// editing the list.
+// defaultStack manages a list of middleware wrappers with concurrency safety
+// for editing the list.
 type defaultStack struct {
 	mu       sync.RWMutex
 	wrappers []types.Wrapper
@@ -45,10 +44,10 @@ func (s *defaultStack) Wrappers() []types.Wrapper {
 //
 // Returns:
 //   - Middlewares: The list of middlewares in the stack.
-func (s *defaultStack) Middlewares() middleware.Middlewares {
+func (s *defaultStack) Middlewares() types.Middlewares {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	middlewares := make(middleware.Middlewares, len(s.wrappers))
+	middlewares := make(types.Middlewares, len(s.wrappers))
 	for i, wrapper := range s.wrappers {
 		middlewares[i] = wrapper.Middleware()
 	}

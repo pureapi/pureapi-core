@@ -1,15 +1,14 @@
-package stack
+package middleware
 
 import (
-	"github.com/pureapi/pureapi-core/middleware"
-	"github.com/pureapi/pureapi-core/stack/types"
+	"github.com/pureapi/pureapi-core/middleware/types"
 )
 
 // defaultWrapper encapsulates a middleware with an identifier and optional
 // metadata. ID can be used to identify the middleware type (e.g. for reordering
 // or documentation). Data can carry any type of additional information.
 type defaultWrapper struct {
-	middleware middleware.Middleware
+	middleware types.Middleware
 	id         string
 	data       any
 }
@@ -28,7 +27,7 @@ var _ types.Wrapper = (*defaultWrapper)(nil)
 //   - *defaultWrapper: A new defaultWrapper instance.
 func NewWrapper(
 	id string,
-	middleware middleware.Middleware,
+	middleware types.Middleware,
 	opts ...Option,
 ) *defaultWrapper {
 	w := &defaultWrapper{
@@ -63,7 +62,7 @@ func DataOption(data any) Option {
 //
 // Returns:
 //   - string: The ID of the wrapper.
-func (m *defaultWrapper) Middleware() middleware.Middleware {
+func (m *defaultWrapper) Middleware() types.Middleware {
 	return m.middleware
 }
 

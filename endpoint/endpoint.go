@@ -3,14 +3,14 @@ package endpoint
 import (
 	"net/http"
 
-	"github.com/pureapi/pureapi-core/middleware"
+	"github.com/pureapi/pureapi-core/middleware/types"
 )
 
 // Endpoint represents an API endpoint with middlewares.
 type Endpoint struct {
 	URL         string
 	Method      string
-	Middlewares middleware.Middlewares
+	Middlewares types.Middlewares
 	Handler     http.HandlerFunc // Optional handler for the endpoint.
 }
 
@@ -24,7 +24,7 @@ type Endpoint struct {
 // Returns:
 //   - Endpoint: A new Endpoint instance.
 func NewEndpoint(
-	url string, method string, middlewares middleware.Middlewares,
+	url string, method string, middlewares types.Middlewares,
 ) *Endpoint {
 	return &Endpoint{
 		URL:         url,

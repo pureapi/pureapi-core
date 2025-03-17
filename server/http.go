@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/pureapi/pureapi-core/endpoint"
+	"github.com/pureapi/pureapi-core/middleware"
 	"github.com/pureapi/pureapi-core/server/types"
 	"github.com/pureapi/pureapi-core/util"
 	utiltypes "github.com/pureapi/pureapi-core/util/types"
@@ -258,7 +259,7 @@ func (s *Handler) multiplexEndpoint(
 		multiplexed[endpoint.URL] = make(map[string]http.Handler)
 	}
 	multiplexed[endpoint.URL][endpoint.Method] = s.serverPanicHandler(
-		endpoint.Middlewares.Chain(emptyOrCustomHandler(endpoint)),
+		middleware.Chain(emptyOrCustomHandler(endpoint), endpoint.Middlewares),
 	)
 }
 

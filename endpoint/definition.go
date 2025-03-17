@@ -3,8 +3,7 @@ package endpoint
 import (
 	"net/http"
 
-	"github.com/pureapi/pureapi-core/middleware"
-	types "github.com/pureapi/pureapi-core/stack/types"
+	"github.com/pureapi/pureapi-core/middleware/types"
 )
 
 // Definition represents an endpoint definition.
@@ -179,7 +178,7 @@ func (d Definitions) With(definitions ...Definition) Definitions {
 func (d Definitions) ToEndpoints() []Endpoint {
 	endpoints := []Endpoint{}
 	for _, definition := range d {
-		middlewares := middleware.Middlewares{}
+		middlewares := types.Middlewares{}
 		if definition.Stack() != nil {
 			for _, mw := range definition.Stack().Wrappers() {
 				middlewares = append(middlewares, mw.Middleware())
