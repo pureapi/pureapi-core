@@ -8,8 +8,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/pureapi/pureapi-core/database"
-	"github.com/pureapi/pureapi-core/database/examples"
 	"github.com/pureapi/pureapi-core/database/types"
+	examples "github.com/pureapi/pureapi-core/doc/examples/database"
 )
 
 // Product represents a product entity.

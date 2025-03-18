@@ -8,8 +8,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/pureapi/pureapi-core/database"
-	dbexamples "github.com/pureapi/pureapi-core/database/examples"
 	databasetypes "github.com/pureapi/pureapi-core/database/types"
+	dbexamples "github.com/pureapi/pureapi-core/doc/examples/database"
 	"github.com/pureapi/pureapi-core/util"
 	utiltypes "github.com/pureapi/pureapi-core/util/types"
 )

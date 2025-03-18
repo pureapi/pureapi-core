@@ -121,6 +121,7 @@ func (h *defaultHandler[Input]) handleError(
 				err,
 				outError,
 			),
+		).WithData(
 			map[string]any{"status": statusCode, "err": err, "out": outError},
 		),
 		r.Context(),
@@ -141,8 +142,7 @@ func (h *defaultHandler[Input]) handleOutput(
 			utiltypes.NewEvent(
 				EventOutputError,
 				fmt.Sprintf("Error handling output: %+v", err),
-				map[string]any{"err": err},
-			),
+			).WithData(map[string]any{"err": err}),
 			r.Context(),
 		)
 		w.WriteHeader(http.StatusInternalServerError)

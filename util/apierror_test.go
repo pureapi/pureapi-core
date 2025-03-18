@@ -25,7 +25,7 @@ func (s *APIErrorTestSuite) Test_NewAPIError() {
 	s.Equal(id, errObj.ErrID)
 	s.Nil(errObj.ErrData)
 	s.Empty(errObj.ErrMessage)
-	s.Equal("-", errObj.ErrOrigin)
+	s.Empty(errObj.ErrOrigin)
 }
 
 // Test_WithData verifies that WithData returns a new APIError with the data

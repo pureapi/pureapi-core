@@ -138,8 +138,7 @@ func (s *Handler) startServer(
 			utiltypes.NewEvent(
 				EventShutDownError,
 				"HTTP server shutdown error",
-				map[string]any{"error": err},
-			),
+			).WithData(map[string]any{"error": err}),
 		)
 		return fmt.Errorf("startServer: shutdown error: %w", err)
 	}
@@ -162,8 +161,7 @@ func (s *Handler) listenAndServe(
 			utiltypes.NewEvent(
 				EventErrorStart,
 				fmt.Sprintf("Error starting HTTP server: %v", err),
-				map[string]any{"error": err},
-			),
+			).WithData(map[string]any{"error": err}),
 		)
 		errChan <- err
 		stopChan <- os.Interrupt
@@ -180,12 +178,12 @@ func (s *Handler) setupMux(
 	endpoints := s.multiplexEndpoints(httpEndpoints)
 
 	for url := range endpoints {
+		methods := mapKeys(endpoints[url])
 		s.emitterLogger.Info(
 			utiltypes.NewEvent(
 				EventRegisterURL,
-				fmt.Sprintf("Registering URL: %s", url),
-				map[string]string{"path": url},
-			),
+				fmt.Sprintf("Registering URL: %s %v", url, methods),
+			).WithData(map[string]any{"path": url, "methods": methods}),
 		)
 		iterURL := url
 		mux.Handle(iterURL, s.createEndpointHandler(endpoints[iterURL]))
@@ -214,8 +212,7 @@ func (s *Handler) createEndpointHandler(
 				fmt.Sprintf(
 					"Method not allowed: %s (%v)", r.URL.Path, r.Method,
 				),
-				map[string]string{"path": r.URL.Path, "method": r.Method},
-			),
+			).WithData(map[string]any{"path": r.URL.Path, "method": r.Method}),
 		)
 		http.Error(
 			w,
@@ -232,8 +229,7 @@ func (s *Handler) createNotFoundHandler() http.HandlerFunc {
 			utiltypes.NewEvent(
 				EventNotFound,
 				fmt.Sprintf("Not found: %s (%v)", r.URL.Path, r.Method),
-				map[string]string{"path": r.URL.Path, "method": r.Method},
-			),
+			).WithData(map[string]any{"path": r.URL.Path, "method": r.Method}),
 		)
 		http.Error(
 			w,
@@ -298,8 +294,7 @@ func (s *Handler) panicRecovery(w http.ResponseWriter, err any) {
 		utiltypes.NewEvent(
 			EventPanic,
 			fmt.Sprintf("Server panic: %v", err),
-			map[string]any{"stack": stackTraceSlice()},
-		),
+		).WithData(map[string]any{"stack": stackTraceSlice()}),
 	)
 	http.Error(
 		w,
@@ -319,4 +314,13 @@ func stackTraceSlice() []string {
 		fn := runtime.FuncForPC(pc)
 		trace = append(trace, fmt.Sprintf("%s:%d %s", file, line, fn.Name()))
 	}
+}
+
+// mapKeys returns the keys of a map.
+func mapKeys(m map[string]http.Handler) []string {
+	var keys []string
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
 }
