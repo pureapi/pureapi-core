@@ -3,7 +3,7 @@ package types
 import (
 	"net/http"
 
-	"github.com/pureapi/pureapi-core/apierror/types"
+	"github.com/pureapi/pureapi-core/util/types"
 )
 
 // Handler is an interface for handling endpoints.

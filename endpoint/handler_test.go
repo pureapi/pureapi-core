@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	apierrortypes "github.com/pureapi/pureapi-core/apierror/types"
 	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
 	utiltypes "github.com/pureapi/pureapi-core/util/types"
 	"github.com/stretchr/testify/suite"
@@ -29,10 +28,10 @@ func (d *dummyInputHandler) Handle(
 type dummyErrorHandler struct {
 	capturedErr error
 	retStatus   int
-	retAPIError apierrortypes.APIError
+	retAPIError utiltypes.APIError
 }
 
-func (d *dummyErrorHandler) Handle(err error) (int, apierrortypes.APIError) {
+func (d *dummyErrorHandler) Handle(err error) (int, utiltypes.APIError) {
 	d.capturedErr = err
 	return d.retStatus, d.retAPIError
 }

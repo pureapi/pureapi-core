@@ -6,5 +6,5 @@ type APIError interface {
 	ID() string
 	Data() any
 	Message() string
-	Origin() *string
+	Origin() string
 }

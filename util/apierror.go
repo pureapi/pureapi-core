@@ -1,18 +1,18 @@
-package apierror
+package util
 
 import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/pureapi/pureapi-core/apierror/types"
+	"github.com/pureapi/pureapi-core/util/types"
 )
 
 // DefaultAPIError represents a JSON marshalable custom error type.
 type DefaultAPIError struct {
-	ErrID      string  `json:"id"`
-	ErrData    any     `json:"data,omitempty"`
-	ErrMessage string  `json:"message,omitempty"`
-	ErrOrigin  *string `json:"origin,omitempty"`
+	ErrID      string `json:"id"`
+	ErrData    any    `json:"data,omitempty"`
+	ErrMessage string `json:"message,omitempty"`
+	ErrOrigin  string `json:"origin,omitempty"`
 }
 
 var _ types.APIError = (*DefaultAPIError)(nil)
@@ -29,18 +29,18 @@ func NewAPIError(id string) *DefaultAPIError {
 		ErrID:      id,
 		ErrData:    nil,
 		ErrMessage: "",
-		ErrOrigin:  nil,
+		ErrOrigin:  "",
 	}
 }
 
-// From converts an APIError to a DefaultAPIError.
+// APIErrorFrom converts an APIError to a DefaultAPIError.
 //
 // Parameters:
 //   - err: The APIError to convert.
 //
 // Returns:
 //   - *defaultAPIError: A new defaultAPIError instance.
-func From(err types.APIError) *DefaultAPIError {
+func APIErrorFrom(err types.APIError) *DefaultAPIError {
 	return &DefaultAPIError{
 		ErrID:      err.ID(),
 		ErrData:    err.Data(),
@@ -124,7 +124,7 @@ func (e *DefaultAPIError) WithMessage(message string) *DefaultAPIError {
 //
 // Returns:
 //   - *defaultAPIError: A new defaultAPIError.
-func (e *DefaultAPIError) WithOrigin(origin *string) *DefaultAPIError {
+func (e *DefaultAPIError) WithOrigin(origin string) *DefaultAPIError {
 	new := *e
 	new.ErrOrigin = origin
 	return &new
@@ -170,6 +170,6 @@ func (e *DefaultAPIError) Message() string {
 //
 // Returns:
 //   - string: The origin associated with the error.
-func (e *DefaultAPIError) Origin() *string {
+func (e *DefaultAPIError) Origin() string {
 	return e.ErrOrigin
 }
