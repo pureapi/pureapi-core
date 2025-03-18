@@ -8,7 +8,7 @@ import (
 
 	examples "github.com/pureapi/pureapi-core/doc/examples/server"
 	"github.com/pureapi/pureapi-core/endpoint"
-	"github.com/pureapi/pureapi-core/endpoint/types"
+	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
 	"github.com/pureapi/pureapi-core/server"
 	"github.com/pureapi/pureapi-core/util"
 )
@@ -34,7 +34,7 @@ func main() {
 	authStack.InsertAfter("recovery", authWrapper)
 
 	// Create the endpoints with the speicific middlewares
-	endpoints := []types.Endpoint{
+	endpoints := []endpointtypes.Endpoint{
 		endpoint.NewEndpoint("/public", http.MethodGet).WithHandler(
 			func(w http.ResponseWriter, r *http.Request) {
 				// Simulate a panic if "panic" query parameter is set.
@@ -57,9 +57,11 @@ func main() {
 		), // No middlewares for the boring endpoint.
 	}
 
-	// Create the server handler.
-	eventEmitter := examples.SetupEventEmitter()
-	emitterLogger := util.NewEmitterLogger(eventEmitter, nil)
+	// Create the server handler with logger.
+	emitterLogger := util.NewEmitterLogger(
+		nil,
+		examples.LoggerFactoryFn(),
+	)
 	handler := server.NewHandler(emitterLogger)
 
 	// Create a HTTP server.
