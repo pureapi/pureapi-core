@@ -1,11 +1,10 @@
 # PureAPI Core Documentation
 
-This is the documentation for PureAPI Core. It is designed to help you get started quickly, understand the architecture and features of PureAPI, and find answers to common questions.
+This is the documentation for PureAPI Core. It is designed to help you get started quickly, understand the architecture and features of the system.
 
 ## Overview
 
 PureAPI Core is a modular framework for building robust, scalable RESTful APIs in Golang. It abstracts common tasks such as error handling, middleware management, database operations, and more to help you focus on your business logic.
-
 
 ## Getting Started
 
