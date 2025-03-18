@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	examples "github.com/pureapi/pureapi-core/doc/examples/server"
+	"github.com/pureapi/pureapi-core/doc/examples"
 	"github.com/pureapi/pureapi-core/endpoint"
 	endpointtypes "github.com/pureapi/pureapi-core/endpoint/types"
 	"github.com/pureapi/pureapi-core/server"

@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/pureapi/pureapi-core/database"
 	"github.com/pureapi/pureapi-core/database/types"
-	examples "github.com/pureapi/pureapi-core/doc/examples/database"
+	"github.com/pureapi/pureapi-core/doc/examples"
 )
 
 // Order represents an order in our orders table.
@@ -72,6 +73,7 @@ func main() {
 
 	// Should log a custom error since the transaction was rolled back.
 	GetOrderByID(ctx, db, 2)
+	os.Exit(0)
 }
 
 // Run a successful transaction.

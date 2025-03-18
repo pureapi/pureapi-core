@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	examples "github.com/pureapi/pureapi-core/doc/examples/database"
+	"github.com/pureapi/pureapi-core/doc/examples"
 
 	// Using the SQLite3 driver as an example.
 	_ "github.com/mattn/go-sqlite3"

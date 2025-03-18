@@ -9,7 +9,7 @@ import (
 
 	"github.com/pureapi/pureapi-core/database"
 	databasetypes "github.com/pureapi/pureapi-core/database/types"
-	dbexamples "github.com/pureapi/pureapi-core/doc/examples/database"
+	"github.com/pureapi/pureapi-core/doc/examples"
 	"github.com/pureapi/pureapi-core/util"
 	utiltypes "github.com/pureapi/pureapi-core/util/types"
 )
@@ -34,8 +34,8 @@ func (ec *SimpleErrorChecker) Check(err error) error {
 // errors and translate them into customized application errors.
 func main() {
 	// Connect to the database.
-	db, err := dbexamples.Connect(
-		dbexamples.Cfg(), dbexamples.DummyConnectionOpen,
+	db, err := examples.Connect(
+		examples.Cfg(), examples.DummyConnectionOpen,
 	)
 	if err != nil {
 		log.Fatalf("Connection failed: %v", err)

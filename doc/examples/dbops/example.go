@@ -9,7 +9,7 @@ import (
 
 	"github.com/pureapi/pureapi-core/database"
 	"github.com/pureapi/pureapi-core/database/types"
-	examples "github.com/pureapi/pureapi-core/doc/examples/database"
+	"github.com/pureapi/pureapi-core/doc/examples"
 )
 
 // Product represents a product entity.

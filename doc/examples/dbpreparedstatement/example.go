@@ -4,7 +4,7 @@ import (
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
-	examples "github.com/pureapi/pureapi-core/doc/examples/database"
+	"github.com/pureapi/pureapi-core/doc/examples"
 )
 
 // This example shows how to use a prepared statement using the Prepare
