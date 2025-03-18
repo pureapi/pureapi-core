@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/pureapi/pureapi-core/endpoint"
+	"github.com/pureapi/pureapi-core/endpoint/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -55,8 +56,8 @@ func (d *DummyHTTPServer) Shutdown(ctx context.Context) error {
 func TestDefaultHTTPServer(t *testing.T) {
 	// Create a basic server handler.
 	handler := NewHandler(nil)
-	endpoints := []endpoint.Endpoint{
-		*endpoint.NewEndpoint("/test", "GET", nil),
+	endpoints := []types.Endpoint{
+		endpoint.NewEndpoint("/test", "GET"),
 	}
 	port := 8080
 	server := DefaultHTTPServer(handler, port, endpoints)
@@ -141,18 +142,18 @@ func TestSetupMuxAndHandlers(t *testing.T) {
 	// Create two endpoints:
 	// - /test with GET returns "OK".
 	// - /panic with GET panics to test panic recovery.
-	endpointOK := endpoint.NewEndpoint("/test", "GET", nil).WithHandler(
+	endpointOK := endpoint.NewEndpoint("/test", "GET").WithHandler(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("OK"))
 		},
 	)
-	endpointPanic := endpoint.NewEndpoint("/panic", "GET", nil).WithHandler(
+	endpointPanic := endpoint.NewEndpoint("/panic", "GET").WithHandler(
 		func(w http.ResponseWriter, r *http.Request) {
 			panic("handler panic")
 		},
 	)
-	endpoints := []endpoint.Endpoint{*endpointOK, *endpointPanic}
+	endpoints := []types.Endpoint{endpointOK, endpointPanic}
 
 	// Use a dummy logger to capture events.
 	handler := NewHandler(nil)
@@ -187,22 +188,22 @@ func TestSetupMuxAndHandlers(t *testing.T) {
 
 func TestMultiplexEndpoints(t *testing.T) {
 	// Create endpoints with different URLs and methods.
-	end1 := endpoint.NewEndpoint("/a", "GET", nil).WithHandler(
+	end1 := endpoint.NewEndpoint("/a", "GET").WithHandler(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("A GET"))
 		},
 	)
-	end2 := endpoint.NewEndpoint("/a", "POST", nil).WithHandler(
+	end2 := endpoint.NewEndpoint("/a", "POST").WithHandler(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("A POST"))
 		},
 	)
-	end3 := endpoint.NewEndpoint("/b", "GET", nil).WithHandler(
+	end3 := endpoint.NewEndpoint("/b", "GET").WithHandler(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("B GET"))
 		},
 	)
-	endpoints := []endpoint.Endpoint{*end1, *end2, *end3}
+	endpoints := []types.Endpoint{end1, end2, end3}
 
 	handler := NewHandler(nil)
 	muxed := handler.multiplexEndpoints(endpoints)

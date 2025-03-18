@@ -11,13 +11,13 @@ import (
 	"time"
 
 	"github.com/pureapi/pureapi-core/endpoint"
+	"github.com/pureapi/pureapi-core/endpoint/types"
 	"github.com/stretchr/testify/require"
 )
 
 // FuzzHTTPRequest sends fuzzed HTTP request data to the test server.
 // It will help uncover vulnerabilities, crashes, or unexpected behavior.
 // Run with: go test -fuzz=FuzzHTTPRequest
-
 func FuzzHTTPRequest(f *testing.F) {
 	// startTestServer accepts testing.TB so *testing.F works.
 	addr, shutdown := startFuzzTestServer(f)
@@ -67,7 +67,7 @@ func FuzzHTTPRequest(f *testing.F) {
 // startFuzzTestServer is a helper that starts a test server using
 // DefaultHTTPServer. It registers a simple GET "/" endpoint returning "OK".
 func startFuzzTestServer(tb testing.TB) (addr string, shutdown func()) {
-	ep := endpoint.NewEndpoint("/", "GET", nil).WithHandler(
+	ep := endpoint.NewEndpoint("/", "GET").WithHandler(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write([]byte("OK"))
@@ -75,7 +75,7 @@ func startFuzzTestServer(tb testing.TB) (addr string, shutdown func()) {
 	)
 	handler := NewHandler(nil)
 	// Use port 0 to let the OS select an available port.
-	server := DefaultHTTPServer(handler, 0, []endpoint.Endpoint{*ep})
+	server := DefaultHTTPServer(handler, 0, []types.Endpoint{ep})
 	ln, err := net.Listen("tcp", server.Addr)
 	require.NoError(tb, err)
 	go server.Serve(ln)

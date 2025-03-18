@@ -18,13 +18,27 @@ type Event struct {
 //   - data: The optional data of the event.
 //
 // Returns:
-//   - *Event: A new event.
-func NewEvent(eventType EventType, message string, data ...any) *Event {
+//   - *Event: A new Event instance.
+func NewEvent(eventType EventType, message string) *Event {
 	return &Event{
 		Type:    eventType,
 		Message: message,
-		Data:    data,
+		Data:    nil,
 	}
+}
+
+// WithData sets the data of the event. It returns a new event with the data
+// set.
+//
+// Parameters:
+//   - data: The data to set.
+//
+// Returns:
+//   - *Event: A new Event instance with the data set.
+func (event *Event) WithData(data any) *Event {
+	new := *event
+	new.Data = data
+	return &new
 }
 
 // EventCallback is a function that handles an event.

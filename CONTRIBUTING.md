@@ -1,27 +1,7 @@
 # Contributing to PureAPI Core
 
-Thank you for your interest in contributing to PureAPI Core! Your contributions help us maintain a robust, lightweight framework for building web APIs in Go. This document outlines our guidelines, design principles, and testing strategy to ensure that contributions are consistent and maintainable.
+Thank you for your interest in contributing to PureAPI Core! Your contributions help us maintain a robust, lightweight framework for building web APIs in Go.
 
----
-
-## Our Design Principles
-
-- **Minimal External Dependencies:**  
-  PureAPI Core is designed to remain lightweight by minimizing external dependencies. We only introduce third-party libraries when they offer significant benefits—primarily in the testing domain.
-
-- **Public Contracts First:**  
-  Our testing and development focus on the public interfaces (or contracts) of the API. Changes must ensure that external behavior remains consistent and predictable.
-
-- **Security-Critical Testing:**  
-  Extra care is taken in testing areas that affect security. These sections should have additional tests to guarantee their robustness against potential vulnerabilities.
-
-- **Private Function Testing:**  
-  While the primary focus is on public APIs, if a private function encapsulates critical logic, it should be tested indirectly through its public interface. Direct testing of private functions is secondary and only done when absolutely necessary, and reserved for more stable code.
-
-- **Incremental Test Coverage:**  
-  We strive for high enough test coverage, and 100% coverage is a end goal for stable code only. Early and active development prioritizes meaningful tests—public contract tests first, followed by targeted tests for security-critical spots.
-
----
 
 ## How to Contribute
 

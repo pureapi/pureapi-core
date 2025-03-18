@@ -22,7 +22,7 @@ type TransactionIntTestSuite struct {
 	tx types.Tx
 }
 
-// TestTransactionIntTestSuite registers the test suite.
+// TestTransactionIntTestSuite runs the test suite.
 func TestTransactionIntTestSuite(t *testing.T) {
 	suite.Run(t, new(TransactionIntTestSuite))
 }

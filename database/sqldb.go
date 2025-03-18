@@ -25,7 +25,7 @@ var _ types.DB = (*sqlDB)(nil)
 //   - dsn: The database connection string.
 //
 // Returns:
-//   - *sqlDB: A new instance of sqlDB.
+//   - *sqlDB: A new sqlDB instance.
 //   - error: An error if the connection fails.
 func NewSQLDB(driver string, dsn string) (*sqlDB, error) {
 	db, err := sql.Open(driver, dsn)
@@ -44,7 +44,7 @@ func NewSQLDB(driver string, dsn string) (*sqlDB, error) {
 //   - dsn: The database connection string.
 //
 // Returns:
-//   - DB: A new instance of DB.
+//   - DB: A new DB instance.
 //   - error: An error if the connection fails.
 func NewSQLDBAdapter(driver string, dsn string) (types.DB, error) {
 	db, err := NewSQLDB(driver, dsn)

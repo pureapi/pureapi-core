@@ -33,35 +33,31 @@ var _ types.EventEmitter = (*defaultEventEmitter)(nil)
 //
 // Returns:
 //   - *defaultEventEmitter: A new defaultEventEmitter.
-func NewEventEmitter(opts ...eventEmitterOption) *defaultEventEmitter {
+func NewEventEmitter() *defaultEventEmitter {
 	eventEmitter := &defaultEventEmitter{
 		listeners: make(map[types.EventType][]eventListener),
 		mu:        sync.RWMutex{},
-	}
-	for _, opt := range opts {
-		if opt == nil {
-			continue
-		}
-		opt(eventEmitter)
+		counter:   0,
+		timeout:   nil,
 	}
 	return eventEmitter
 }
 
-// eventEmitterOption is a function that configures the eventEmitter.
-type eventEmitterOption func(*defaultEventEmitter)
-
 // WithTimeout sets the timeout for each callback. If the timeout is exceeded,
-// an error message will be printed to stderr.
+// an error message will be printed to stderr. It will return a new
+// eventEmitterOption.
 //
 // Parameters:
 //   - timeout: The timeout duration.
 //
 // Returns:
-//   - eventEmitterOption: The eventEmitterOption.
-func WithTimeout(timeout time.Duration) eventEmitterOption {
-	return func(e *defaultEventEmitter) {
-		e.timeout = &timeout
-	}
+//   - *defaultEventEmitter: A new defaultEventEmitter.
+func (e *defaultEventEmitter) WithTimeout(
+	timeout *time.Duration,
+) *defaultEventEmitter {
+	new := NewEventEmitter()
+	new.timeout = timeout
+	return new
 }
 
 // RegisterListener registers a listener for a specific event type.

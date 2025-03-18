@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/pureapi/pureapi-core/endpoint"
+	"github.com/pureapi/pureapi-core/endpoint/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -23,7 +24,7 @@ import (
 // implementation with a simple GET / endpoint that returns "OK". It listens on
 // an ephemeral port.
 func startOffensiveTestServer(t *testing.T) (addr string, shutdown func()) {
-	ep := endpoint.NewEndpoint("/", "GET", nil).WithHandler(
+	ep := endpoint.NewEndpoint("/", "GET").WithHandler(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write([]byte("OK"))
@@ -31,7 +32,7 @@ func startOffensiveTestServer(t *testing.T) (addr string, shutdown func()) {
 	)
 	handler := NewHandler(nil)
 	// Using port 0 to let the OS pick an available port.
-	server := DefaultHTTPServer(handler, 0, []endpoint.Endpoint{*ep})
+	server := DefaultHTTPServer(handler, 0, []types.Endpoint{ep})
 	server.ReadTimeout = 10 * time.Second
 	server.WriteTimeout = 10 * time.Second
 	server.IdleTimeout = 60 * time.Second

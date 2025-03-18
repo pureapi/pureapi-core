@@ -15,7 +15,7 @@ type emitterLogger struct {
 //   - loggerFactoryFn: A LoggerFactoryFn.
 //
 // Returns:
-//   - *emitterLogger: A new emitterLogger.
+//   - *emitterLogger: A new emitterLogger instance.
 func NewEmitterLogger(
 	eventEmitter types.EventEmitter, loggerFactoryFn types.LoggerFactoryFn,
 ) *emitterLogger {
@@ -28,23 +28,9 @@ func NewEmitterLogger(
 // NewNoopEmitterLogger creates a new EmitterLogger that does nothing.
 //
 // Returns:
-//   - *emitterLogger: A new emitterLogger.
+//   - *emitterLogger: A new emitterLogger instance.
 func NewNoopEmitterLogger() *emitterLogger {
 	return &emitterLogger{}
-}
-
-// WithEventEmitter sets the event emitter for the EmitterLogger. It returns
-// a new EmitterLogger.
-//
-// Parameters:
-//   - eventEmitter: An EventEmitter.
-//
-// Returns:
-//   - *emitterLogger: A new emitterLogger.
-func (e *emitterLogger) WithEventEmitter(
-	eventEmitter types.EventEmitter,
-) *emitterLogger {
-	return NewEmitterLogger(eventEmitter, e.loggerFactoryFn)
 }
 
 // Debug emits an event and logs at the Debug level.
